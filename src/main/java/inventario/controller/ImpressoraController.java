@@ -75,7 +75,7 @@ public class ImpressoraController {
         Impressora impressora = impressoraRepository.findById(id).orElse(null);
         model.addAttribute("impressora", impressora);
         model.addAttribute("setores", setorRepository.findAll());
-        return "impressora/cadastro";
+        return "impressoras/cadastro";
     }
 
     @GetMapping("/excluir/{id}")
