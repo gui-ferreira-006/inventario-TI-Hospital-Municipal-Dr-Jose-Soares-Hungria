@@ -1,0 +1,14 @@
+inventario\controller\SetorController.class
+inventario\repository\ImpressoraRepository.class
+inventario\controller\MonitorController.class
+inventario\controller\ImpressoraController.class
+inventario\repository\SetorRepository.class
+inventario\repository\MonitorRepository.class
+inventario\controller\HomeController.class
+inventario\controller\ComputadorController.class
+inventario\model\Setor.class
+inventario\InventarioApplication.class
+inventario\model\Impressora.class
+inventario\model\Monitor.class
+inventario\model\Computador.class
+inventario\repository\ComputadorRepository.class
