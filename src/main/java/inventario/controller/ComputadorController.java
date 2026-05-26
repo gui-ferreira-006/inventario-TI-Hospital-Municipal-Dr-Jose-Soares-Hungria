@@ -21,8 +21,13 @@ public class ComputadorController {
     private SetorRepository setorRepository;
 
     @GetMapping
-    public String listarComputadores(Model model) {
-        model.addAttribute("computadores", computadorRepository.findAll());
+    public String listarComputadores(@RequestParam(value = "termo", required = false) String termo, Model model) {
+        if (termo != null && !termo.trim().isEmpty()) {
+            model.addAttribute("computadores", computadorRepository.pesquisarGlobal(termo.trim()));
+            model.addAttribute("termoBusca", termo.trim());
+        } else {
+            model.addAttribute("computadores", computadorRepository.findAll());
+        }
         return "computadores/lista";
     }
 

@@ -8,6 +8,7 @@ inventario\controller\HomeController.class
 inventario\controller\ComputadorController.class
 inventario\model\Setor.class
 inventario\InventarioApplication.class
+inventario\util\DatabaseImporter.class
 inventario\model\Impressora.class
 inventario\model\Monitor.class
 inventario\model\Computador.class

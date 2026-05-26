@@ -10,10 +10,12 @@ import org.springframework.data.repository.query.Param;
 @Repository
 public interface ComputadorRepository extends JpaRepository<Computador, Long> {
 
-    @Query("SELECT c FROM Computador c WHERE " +
-        "LOWER(c.serialComputador) LIKE LOWER(CONCAT('%', :termo, '%')) OR " + 
+    @Query("SELECT c FROM Computador c " +
+        "LEFT JOIN c.setor s " +
+        "WHERE LOWER(c.serialComputador) LIKE LOWER(CONCAT('%', :termo, '%')) OR " + 
         "LOWER(c.hostname) LIKE LOWER(CONCAT('%', :termo, '%')) OR " +
-        "LOWER(c.enderecoIp) LIKE LOWER(CONCAT('%', :termo, '%'))"
+        "LOWER(c.enderecoIp) LIKE LOWER(CONCAT('%', :termo, '%')) OR " +
+        "(LOWER(s.nome) LIKE LOWER(CONCAT('%', :termo, '%')) AND c.status IN ('Ativo no Setor', 'ATIVO'))"
     )
     List<Computador> pesquisarGlobal(@Param("termo") String termo);
 
