@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Monitor</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+    <div th:replace="~{fragments/menu :: navbar}"></div>
+
+    <div class="container">
+        <div class="card shadow-sm mt-4">
+            <div class="card-header bg-success text-white">
+                <h4 class="mb-0">Cadastro de Monitor</h4>
+            </div>
+            <div class="card-body">
+
+                <form th:action="@{/monitores/salvar}" th:object="${monitor}" method="post">
+
+                    <input type="hidden" th:field="*{id}">
+
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="marca" class="form-label">Marca</label>
+                            <input type="text" id="marca" class="form-control" th:field="*{marca}"
+                                    placeholder="Ex: Dell, LG, Samsung"
+                                    th:classappend="${#fields.hasErrors('marca')} ? 'is-invalid'">
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('marca')}" th:errors="*{marca}"></div>
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            <label for="modelo" class="form-label">Modelo</label>
+                            <input type="text" id="modelo" class="form-control" th:field="*{modelo}"
+                                    placeholder="Ex: U2419H, 24MK430H"
+                                    th:classappend="${#fields.hasErrors('modelo')} ? 'is-invalid'">
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('modelo')}" th:errors="*{modelo}"></div>
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            <label for="serialMonitor" class="form-label">Número de Série</label>
+                            <input type="text" id="serialMonitor" class="form-control" th:field="*{serialMonitor}"
+                                    placeholder="Digite o serial do monitor"
+                                    th:classappend="${#fields.hasErrors('serialMonitor')} ? 'is-invalid'">
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('serialMonitor')}" th:errors="*{serialMonitor}"></div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label for="computador" class="form-label">Computador Alocado</label>
+                            <select class="form-select" id="computador" th:field="*{computador}">
+                                <option value="">-- Sem computador (Ficar em Reserva / Estoque) --</option>
+                                <option th:each="c : ${computadores}"
+                                        th:value="${c.id}"
+                                        th:text="${c.hostname != null ? c.hostname : 'Sem Hostname'} + ' - ' + ${c.serialComputador} + ' (' + ${c.setor != null ? c.setor.nome : 'Sem Setor'} + ')'"></option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end mt-4">
+                        <a href="/monitores" class="btn btn-secondary me-2">Cancelar</a>
+                        <button type="submit" class="btn btn-success">Salvar Monitor</button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

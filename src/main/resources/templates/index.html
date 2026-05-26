@@ -25,7 +25,7 @@
         </div>
 
         <div class="row g-4">
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <div class="card card-menu h-100 border-primary" onclick="window.location.href='/computadores'">
                    <div class="card-body text-center py-5">
                     <i class="bi bi-pc-display icon-large mb-3 d-block"></i>
@@ -37,7 +37,7 @@
                 </div>
             </div>
 
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <div class="card card-menu h-100 border-success" onclick="window.location.href='/setores'">
                     <div class="card-body text-center py-5">
                         <i class="bi bi-building icon-large text-success mb-3 d-block"></i>
@@ -49,14 +49,26 @@
                 </div>
             </div>
 
-            <div class="col-md-4">
-                <div class="card card-menu h-100 border-secondary">
+            <div class="col-md-3">
+                <div class="card card-menu h-100 border-secondary" onclick="window.location.href='/impressoras'">
                     <div class="card-body text-center py-5">
                         <i class="bi bi-printer icon-large text-secondary mb-3 d-block"></i>
-                        <h1 class="display-4 fw-bold text-secondary mb-2">-</h1>
-                        <h4 class="card-title fw-bold text-muted">Impressoras</h4>
+                        <h1 class="display-4 fw-bold text-secondary mb-2" th:text="${totalImpressoras}">0</h1>
+                        <h4 class="card-title fw-bold">Impressoras</h4>
                         <p class="card-text text-muted">Gerencie o parque de impressoras, seriais e IPs.</p>
                         <a href="/impressoras" class="btn btn-secondary mt-2">Acessar Módulo</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card card-menu h-100 border-info" onclick="window.location.href='/monitores'">
+                    <div class="card-body text-center py-5">
+                        <i class="bi bi-display icon-large text-info mb-3 d-block"></i>
+                        <h1 class="display-4 fw-bold text-info mb-2" th:text="${totalMonitores}">0</h1>
+                        <h4 class="card-title fw-bold">Monitores</h4>
+                        <p class="card-text text-muted">Gerencie o parque de monitores e seus seriais.</p>
+                        <a href="/monitores" class="btn btn-info text-white mt-2">Acessar Módulo</a>
                     </div>
                 </div>
             </div>
