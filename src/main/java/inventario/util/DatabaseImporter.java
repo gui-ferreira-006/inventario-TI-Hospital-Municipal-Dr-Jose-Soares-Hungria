@@ -98,6 +98,15 @@ public class DatabaseImporter implements CommandLineRunner {
                 String ip = parts[3].trim();
                 String serial = parts[4].trim();
 
+                // Normalização/limpeza de dados específicos para computadores de reserva e sem IP
+                if (hostname.equalsIgnoreCase("SMSHMJSH") || hostname.equalsIgnoreCase("DESAPARECIDO")) {
+                    hostname = ""; // Fica nulo no banco para evitar duplicidade de placeholder
+                }
+
+                if (ip.equalsIgnoreCase("Sem IP") || !ip.matches("^([0-9]{1,3}\\.){3}[0-9]{1,3}$")) {
+                    ip = ""; // Fica nulo no banco para evitar formato de IP inválido ou duplicidade de prefixo
+                }
+
                 // Validações básicas antes de salvar
                 if (serial.length() < 10) {
                     System.err.println("[ERRO] Serial inválido (menos de 10 caracteres): " + serial + " na linha: " + line);
@@ -139,11 +148,18 @@ public class DatabaseImporter implements CommandLineRunner {
                     computador.setSerialComputador(serial);
                     computador.setHostname(hostname.isEmpty() ? null : hostname);
                     computador.setEnderecoIp(ip.isEmpty() ? null : ip);
-                    computador.setStatus("Ativo no Setor");
+                    
+                    // Definir o status com base no setor (reserva fica em estoque)
+                    if (setorNome.equalsIgnoreCase("Informática - Reserva")) {
+                        computador.setStatus("Em Estoque/Bancada");
+                    } else {
+                        computador.setStatus("Ativo no Setor");
+                    }
+                    
                     computador.setSetor(setor);
 
                     computadorRepository.save(computador);
-                    System.out.println("[OK] Importado: Serial " + serial + " -> " + hostname + " (" + setorNome + ")");
+                    System.out.println("[OK] Importado: Serial " + serial + " -> " + (hostname.isEmpty() ? "Sem Hostname" : hostname) + " (" + setorNome + ")");
                     totalImportados++;
 
                 } catch (Exception e) {
