@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -32,8 +33,26 @@ public class DatabaseImporter implements CommandLineRunner {
         System.out.println("   INICIANDO IMPORTAÇÃO DE COMPUTADORES");
         System.out.println("==================================================");
 
-        // O arquivo está em Teste/Listagem de CPUs.txt
-        File file = new File("Teste/Listagem de CPUs.txt");
+        // Corrigir computadores que ainda estão com o status antigo "ATIVO"
+        int totalCorrigidos = 0;
+        try {
+            List<Computador> todos = computadorRepository.findAll();
+            for (Computador c : todos) {
+                if ("ATIVO".equalsIgnoreCase(c.getStatus())) {
+                    c.setStatus("Ativo no Setor");
+                    computadorRepository.save(c);
+                    totalCorrigidos++;
+                }
+            }
+            if (totalCorrigidos > 0) {
+                System.out.println("[MIGRAÇÃO] Sucesso: Corrigidos " + totalCorrigidos + " computadores com status 'ATIVO' para 'Ativo no Setor'.");
+            }
+        } catch (Exception e) {
+            System.err.println("[MIGRAÇÃO] Erro ao corrigir computadores antigos: " + e.getMessage());
+        }
+
+        // O arquivo está em Imports/Listagem de CPUs.txt
+        File file = new File("Imports/Listagem de CPUs.txt");
         if (!file.exists()) {
             System.err.println("ERRO: Arquivo não encontrado em: " + file.getAbsolutePath());
             System.out.println("==================================================\n");

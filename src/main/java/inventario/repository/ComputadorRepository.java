@@ -15,7 +15,7 @@ public interface ComputadorRepository extends JpaRepository<Computador, Long> {
         "WHERE LOWER(c.serialComputador) LIKE LOWER(CONCAT('%', :termo, '%')) OR " + 
         "LOWER(c.hostname) LIKE LOWER(CONCAT('%', :termo, '%')) OR " +
         "LOWER(c.enderecoIp) LIKE LOWER(CONCAT('%', :termo, '%')) OR " +
-        "(LOWER(s.nome) LIKE LOWER(CONCAT('%', :termo, '%')) AND c.status IN ('Ativo no Setor', 'ATIVO'))"
+        "(LOWER(s.nome) LIKE LOWER(CONCAT('%', :termo, '%')) AND c.status = 'Ativo no Setor')"
     )
     List<Computador> pesquisarGlobal(@Param("termo") String termo);
 
