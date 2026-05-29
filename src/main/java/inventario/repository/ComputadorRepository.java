@@ -24,6 +24,9 @@ public interface ComputadorRepository extends JpaRepository<Computador, Long> {
 
     boolean existsByHostnameAndIdNot(String hostname, Long id);
 
+    java.util.Optional<Computador> findByHostname(String hostname);
+
+
     // --- Validações de Duplicidade para o Serial ---
     boolean existsBySerialComputador(String serialComputador);
 
