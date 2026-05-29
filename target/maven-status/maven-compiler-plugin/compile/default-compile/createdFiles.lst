@@ -12,4 +12,5 @@ inventario\util\DatabaseImporter.class
 inventario\model\Impressora.class
 inventario\model\Monitor.class
 inventario\model\Computador.class
+inventario\model\Impressora$ManualValidation.class
 inventario\repository\ComputadorRepository.class
