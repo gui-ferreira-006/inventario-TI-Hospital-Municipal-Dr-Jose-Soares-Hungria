@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurar Relatório - Inventário TI</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <!-- Outfit Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: #f4f6fa;
+        }
+
+        .header-panel {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+            border-radius: 16px;
+            color: #ffffff;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 25px rgba(30, 27, 75, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header-panel::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 300px;
+            height: 300px;
+            background: rgba(99, 102, 241, 0.15);
+            border-radius: 50%;
+            filter: blur(50px);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.05);
+            backdrop-filter: blur(8px);
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            box-shadow: 0 12px 40px rgba(31, 38, 135, 0.08);
+        }
+
+        .card-title-custom {
+            font-weight: 700;
+            color: #1e1b4b;
+            border-left: 4px solid #4f46e5;
+            padding-left: 12px;
+        }
+
+        /* Format Card selector */
+        .format-selector {
+            display: flex;
+            gap: 15px;
+        }
+
+        .format-option {
+            flex: 1;
+            position: relative;
+        }
+
+        .format-input {
+            display: none;
+        }
+
+        .format-card {
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 18px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .format-card i {
+            font-size: 2.2rem;
+            transition: transform 0.2s ease;
+        }
+
+        .format-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .format-input:checked + .format-card-pdf {
+            border-color: #ef4444;
+            background-color: rgba(239, 68, 68, 0.04);
+            color: #b91c1c;
+            font-weight: 600;
+        }
+
+        .format-input:checked + .format-card-pdf i {
+            color: #ef4444;
+            transform: scale(1.1);
+        }
+
+        .format-input:checked + .format-card-excel {
+            border-color: #10b981;
+            background-color: rgba(16, 185, 129, 0.04);
+            color: #047857;
+            font-weight: 600;
+        }
+
+        .format-input:checked + .format-card-excel i {
+            color: #10b981;
+            transform: scale(1.1);
+        }
+
+        /* Toggle Switches */
+        .form-check-input:checked {
+            background-color: #4f46e5;
+            border-color: #4f46e5;
+        }
+
+        /* Live Preview Styles */
+        .preview-pane {
+            background-color: #ffffff;
+            border: 2px dashed #cbd5e1;
+            border-radius: 12px;
+            padding: 20px;
+            position: relative;
+        }
+
+        .preview-badge {
+            position: absolute;
+            top: -12px;
+            left: 20px;
+            background-color: #4f46e5;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            box-shadow: 0 4px 10px rgba(79, 70, 229, 0.2);
+        }
+
+        .preview-table {
+            font-size: 0.85rem;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+        }
+
+        .preview-table th {
+            background-color: #f8fafc;
+            color: #475569;
+            font-weight: 600;
+        }
+
+        /* Button styles */
+        .btn-gradient {
+            background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+            border: none;
+            color: white;
+            font-weight: 600;
+            padding: 12px 24px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+        }
+
+        .btn-gradient:hover {
+            background: linear-gradient(135deg, #4338ca 0%, #4f46e5 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(79, 70, 229, 0.35);
+            color: white;
+        }
+    </style>
+</head>
+<body class="bg-light">
+
+    <!-- Menu de Navegação -->
+    <div th:replace="~{fragments/menu :: navbar}"></div>
+
+    <div class="container py-2">
+        
+        <!-- Painel de Cabeçalho Premium -->
+        <div class="header-panel">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <span class="badge bg-indigo-500 mb-2 px-3 py-2 text-uppercase fw-semibold" style="background-color: rgba(99, 102, 241, 0.3); color: #c7d2fe;">Fase 1 - Configurações</span>
+                    <h1 class="display-5 fw-bold mb-1">Central de Relatórios TI</h1>
+                    <p class="mb-0 text-white-50">Configure, selecione colunas e filtros para exportar o inventário em tempo real.</p>
+                </div>
+                <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                    <i class="bi bi-file-earmark-bar-graph-fill" style="font-size: 4rem; opacity: 0.25;"></i>
+                </div>
+            </div>
+        </div>
+
+        <form id="reportForm" th:action="@{/relatorios/gerar}" method="post">
+            <div class="row g-4">
+                
+                <!-- Coluna Esquerda: Definições Gerais -->
+                <div class="col-lg-5 col-md-12">
+                    <div class="card glass-card p-4 h-100">
+                        <h4 class="card-title-custom mb-4">Geral</h4>
+
+                        <!-- Módulo Relacionado (Com Inteligência de Contexto) -->
+                        <div class="mb-4">
+                            <label for="modulo" class="form-label fw-semibold text-secondary">Módulo Alvo</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white"><i class="bi bi-layers text-primary"></i></span>
+                                <select class="form-select border-start-0" id="modulo" name="modulo" onchange="switchModule(this.value)">
+                                    <option value="geral" th:selected="${moduloSelecionado == 'geral'}">Geral (Resumo Estatístico)</option>
+                                    <option value="computadores" th:selected="${moduloSelecionado == 'computadores'}">Computadores (Máquinas)</option>
+                                    <option value="impressoras" th:selected="${moduloSelecionado == 'impressoras'}">Impressoras</option>
+                                    <option value="monitores" th:selected="${moduloSelecionado == 'monitores'}">Monitores</option>
+                                    <option value="setores" th:selected="${moduloSelecionado == 'setores'}">Setores (Departamentos)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Título Personalizado -->
+                        <div class="mb-4">
+                            <label for="titulo" class="form-label fw-semibold text-secondary">Título do Relatório</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white"><i class="bi bi-tag text-primary"></i></span>
+                                <input type="text" class="form-control border-start-0" id="titulo" name="titulo" 
+                                       placeholder="Digite um título para o documento" value="Relatório Geral de Inventário">
+                            </div>
+                        </div>
+
+                        <!-- Seletor de Formato -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold text-secondary mb-2">Formato de Exportação</label>
+                            <div class="format-selector">
+                                <div class="format-option">
+                                    <input type="radio" class="format-input" id="formatPdf" name="formato" value="PDF" checked onchange="updatePreviewFormat('PDF')">
+                                    <label class="format-card format-card-pdf w-100" for="formatPdf">
+                                        <i class="bi bi-file-earmark-pdf"></i>
+                                        <span>PDF (.pdf)</span>
+                                    </label>
+                                </div>
+                                <div class="format-option">
+                                    <input type="radio" class="format-input" id="formatExcel" name="formato" value="EXCEL" onchange="updatePreviewFormat('EXCEL')">
+                                    <label class="format-card format-card-excel w-100" for="formatExcel">
+                                        <i class="bi bi-file-earmark-spreadsheet"></i>
+                                        <span>Excel (.xlsx)</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Parâmetros de Layout -->
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold text-secondary mb-2">Estrutura & Layout</label>
+                            
+                            <!-- Orientação -->
+                            <div class="d-flex justify-content-between align-items-center bg-light p-3 rounded-3 mb-3 border">
+                                <span class="fw-medium text-dark"><i class="bi bi-file-earmark-ruled me-2"></i>Orientação da Página</span>
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <input type="radio" class="btn-check" name="orientacao" id="portrait" value="portrait" checked onchange="updatePreviewOrientation('Retrato')">
+                                    <label class="btn btn-outline-primary" for="portrait">Retrato</label>
+                                    <input type="radio" class="btn-check" name="orientacao" id="landscape" value="landscape" onchange="updatePreviewOrientation('Paisagem')">
+                                    <label class="btn btn-outline-primary" for="landscape">Paisagem</label>
+                                </div>
+                            </div>
+
+                            <!-- Opcionais -->
+                            <div class="bg-light p-3 rounded-3 border">
+                                <div class="form-check form-switch mb-2">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="incluirCabecalho" name="incluirCabecalho" checked>
+                                    <label class="form-check-label text-dark fw-medium" for="incluirCabecalho">Incluir cabeçalho institucional</label>
+                                </div>
+                                <div class="form-check form-switch mb-2">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="incluirDataHora" name="incluirDataHora" checked>
+                                    <label class="form-check-label text-dark fw-medium" for="incluirDataHora">Incluir carimbo de data e hora</label>
+                                </div>
+                                <div class="form-check form-switch mb-2">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="incluirNumeracao" name="incluirNumeracao" checked>
+                                    <label class="form-check-label text-dark fw-medium" for="incluirNumeracao">Numeração de páginas</label>
+                                </div>
+                                <div class="form-check form-switch mb-0">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="incluirRodape" name="incluirRodape" checked>
+                                    <label class="form-check-label text-dark fw-medium" for="incluirRodape">Rodapé do Hospital Municipal</label>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Coluna Direita: Opções Dinâmicas e Preview -->
+                <div class="col-lg-7 col-md-12">
+                    <div class="d-flex flex-column h-100 gap-4">
+                        
+                        <!-- Card 1: Seleção de Dados (Checkboxes e Filtros Dinâmicos) -->
+                        <div class="card glass-card p-4">
+                            <h4 class="card-title-custom mb-3">Dados & Colunas</h4>
+                            
+                            <!-- Opções Dinâmicas Computadores -->
+                            <div id="opcoes-computadores" class="opcao-modulo d-none">
+                                <p class="text-muted small mb-3">Selecione quais dados de <strong>Computadores</strong> devem aparecer nas colunas do relatório:</p>
+                                <div class="row g-2 mb-3">
+                                    <div class="col-md-4">
+                                        <div class="border p-2 rounded bg-light form-check">
+                                            <input class="form-check-input ms-1 col-cb" type="checkbox" name="cols_computadores" value="id" id="comp_id" checked onchange="updatePreviewTable()">
+                                            <label class="form-check-label ms-2 fw-semibold" for="comp_id">ID</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="border p-2 rounded bg-light form-check">
+                                            <input class="form-check-input ms-1 col-cb" type="checkbox" name="cols_computadores" value="hostname" id="comp_hostname" checked onchange="updatePreviewTable()">
+                                            <label class="form-check-label ms-2 fw-semibold" for="comp_hostname">Hostname</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="border p-2 rounded bg-light form-check">
+                                            <input class="form-check-input ms-1 col-cb" type="checkbox" name="cols_computadores" value="serial" id="comp_serial" checked onchange="updatePreviewTable()">
+                                            <label class="form-check-label ms-2 fw-semibold" for="comp_serial">Número de Série</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="border p-2 rounded bg-light form-check">
+                                            <input class="form-check-input ms-1 col-cb" type="checkbox" name="cols_computadores" value="ip" id="comp_ip" checked onchange="updatePreviewTable()">
+                                            <label class="form-check-label ms-2 fw-semibold" for="comp_ip">Endereço IP</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="border p-2 rounded bg-light form-check">
+                                            <input class="form-check-input ms-1 col-cb" type="checkbox" name="cols_computadores" value="status" id="comp_status" checked onchange="updatePreviewTable()">
+                                            <label class="form-check-label ms-2 fw-semibold" for="comp_status">Status</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="border p-2 rounded bg-light form-check">
+                                            <input class="form-check-input ms-1 col-cb" type="checkbox" name="cols_computadores" value="setor" id="comp_setor" checked onchange="updatePreviewTable()">
+                                            <label class="form-check-label ms-2 fw-semibold" for="comp_setor">Setor</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="border-top pt-3 mt-3">
+                                    <label class="form-label fw-semibold text-secondary small">Filtrar por Status</label>
+                                    <select class="form-select form-select-sm" name="filtro_comp_status">
+                                        <option value="todos">Todos os Status</option>
+                                        <option value="Em Estoque/Bancada">Em Estoque / Bancada</option>
+                                        <option value="Em Configuração">Em Configuração</option>
+                                        <option value="Ativo no Setor">Ativo no Setor</option>
+                                        <option value="Em Manutenção">Em Manutenção</option>
+                                        <option value="Devolvido">Devolvido</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Opções Dinâmicas Impressoras -->
+                            <div id="opcoes-impressoras" class="opcao-modulo d-none">
+                                <p class="text-muted small mb-3">Selecione quais dados de <strong>Impressoras</strong> devem aparecer nas colunas do relatório:</p>
+                                <div class="row g-2 mb-3">
+                                    <div class="col-md-4">
+                                        <div class="border p-2 rounded bg-light form-check">
+                                            <input class="form-check-input ms-1 col-cb" type="checkbox" name="cols_impressoras" value="id" id="imp_id" checked onchange="updatePreviewTable()">
+                                            <label class="form-check-label ms-2 fw-semibold" for="imp_id">ID</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="border p-2 rounded bg-light form-check">
+                                            <input class="form-check-input ms-1 col-cb" type="checkbox" name="cols_impressoras" value="marcaModelo" id="imp_marca" checked onchange="updatePreviewTable()">
+                                            <label class="form-check-label ms-2 fw-semibold" for="imp_marca">Marca/Modelo</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="border p-2 rounded bg-light form-check">
+                                            <input class="form-check-input ms-1 col-cb" type="checkbox" name="cols_impressoras" value="serial" id="imp_serial" checked onchange="updatePreviewTable()">
+                                            <label class="form-check-label ms-2 fw-semibold" for="imp_serial">Nº de Série</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="border p-2 rounded bg-light form-check">
+                                            <input class="form-check-input ms-1 col-cb" type="checkbox" name="cols_impressoras" value="ip" id="imp_ip" checked onchange="updatePreviewTable()">
+                                            <label class="form-check-label ms-2 fw-semibold" for="imp_ip">Endereço IP</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="border p-2 rounded bg-light form-check">
+                                            <input class="form-check-input ms-1 col-cb" type="checkbox" name="cols_impressoras" value="setor" id="imp_setor" checked onchange="updatePreviewTable()">
+                                            <label class="form-check-label ms-2 fw-semibold" for="imp_setor">Setor</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Opções Dinâmicas Monitores -->
+                            <div id="opcoes-monitores" class="opcao-modulo d-none">
+                                <p class="text-muted small mb-3">Selecione quais dados de <strong>Monitores</strong> devem aparecer nas colunas do relatório:</p>
+                                <div class="row g-2 mb-3">
+                                    <div class="col-md-4">
+                                        <div class="border p-2 rounded bg-light form-check">
+                                            <input class="form-check-input ms-1 col-cb" type="checkbox" name="cols_monitores" value="id" id="mon_id" checked onchange="updatePreviewTable()">
+                                            <label class="form-check-label ms-2 fw-semibold" for="mon_id">ID</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="border p-2 rounded bg-light form-check">
+                                            <input class="form-check-input ms-1 col-cb" type="checkbox" name="cols_monitores" value="marca" id="mon_marca" checked onchange="updatePreviewTable()">
+                                            <label class="form-check-label ms-2 fw-semibold" for="mon_marca">Marca</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="border p-2 rounded bg-light form-check">
+                                            <input class="form-check-input ms-1 col-cb" type="checkbox" name="cols_monitores" value="modelo" id="mon_modelo" checked onchange="updatePreviewTable()">
+                                            <label class="form-check-label ms-2 fw-semibold" for="mon_modelo">Modelo</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="border p-2 rounded bg-light form-check">
+                                            <input class="form-check-input ms-1 col-cb" type="checkbox" name="cols_monitores" value="serial" id="mon_serial" checked onchange="updatePreviewTable()">
+                                            <label class="form-check-label ms-2 fw-semibold" for="mon_serial">Nº de Série</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="border p-2 rounded bg-light form-check">
+                                            <input class="form-check-input ms-1 col-cb" type="checkbox" name="cols_monitores" value="computador" id="mon_computador" checked onchange="updatePreviewTable()">
+                                            <label class="form-check-label ms-2 fw-semibold" for="mon_computador">Comp. Alocado</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Opções Dinâmicas Setores -->
+                            <div id="opcoes-setores" class="opcao-modulo d-none">
+                                <p class="text-muted small mb-3">Selecione quais dados de <strong>Setores</strong> devem aparecer nas colunas do relatório:</p>
+                                <div class="row g-2 mb-3">
+                                    <div class="col-md-4">
+                                        <div class="border p-2 rounded bg-light form-check">
+                                            <input class="form-check-input ms-1 col-cb" type="checkbox" name="cols_setores" value="id" id="set_id" checked onchange="updatePreviewTable()">
+                                            <label class="form-check-label ms-2 fw-semibold" for="set_id">ID</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="border p-2 rounded bg-light form-check">
+                                            <input class="form-check-input ms-1 col-cb" type="checkbox" name="cols_setores" value="nome" id="set_nome" checked onchange="updatePreviewTable()">
+                                            <label class="form-check-label ms-2 fw-semibold" for="set_nome">Nome do Setor</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="border p-2 rounded bg-light form-check">
+                                            <input class="form-check-input ms-1 col-cb" type="checkbox" name="cols_setores" value="bloco" id="set_bloco" checked onchange="updatePreviewTable()">
+                                            <label class="form-check-label ms-2 fw-semibold" for="set_bloco">Bloco / Localização</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Opções Dinâmicas Geral -->
+                            <div id="opcoes-geral" class="opcao-modulo">
+                                <p class="text-muted small mb-3">O relatório <strong>Geral</strong> contém o resumo consolidado e estatístico de todos os módulos. Ele inclui as seguintes seções:</p>
+                                <div class="row g-2">
+                                    <div class="col-md-6">
+                                        <div class="border p-2 rounded bg-light text-secondary small fw-medium">
+                                            <i class="bi bi-check-circle-fill text-indigo-500 me-2" style="color: #4f46e5;"></i> Total de Computadores por Status e Setor
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="border p-2 rounded bg-light text-secondary small fw-medium">
+                                            <i class="bi bi-check-circle-fill text-indigo-500 me-2" style="color: #4f46e5;"></i> Total de Impressoras por Setor
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="border p-2 rounded bg-light text-secondary small fw-medium">
+                                            <i class="bi bi-check-circle-fill text-indigo-500 me-2" style="color: #4f46e5;"></i> Taxa de Alocação de Monitores
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="border p-2 rounded bg-light text-secondary small fw-medium">
+                                            <i class="bi bi-check-circle-fill text-indigo-500 me-2" style="color: #4f46e5;"></i> Resumo de Blocos e Departamentos
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- Card 2: Prévia do Layout em Tempo Real -->
+                        <div class="card glass-card p-4 flex-grow-1">
+                            <h4 class="card-title-custom mb-4">Prévia do Layout</h4>
+                            
+                            <div class="preview-pane flex-grow-1 d-flex flex-column">
+                                <span class="preview-badge" id="previewBadgeModulo">Módulo: Geral</span>
+                                
+                                <div class="d-flex justify-content-between align-items-center mb-3 mt-1 pb-2 border-bottom border-secondary-subtle">
+                                    <div>
+                                        <h5 class="fw-bold mb-0 text-dark" id="previewTitle">Relatório Geral de Inventário</h5>
+                                        <span class="text-muted small" id="previewSubtitle">Hospital Municipal Dr. José Soares Hungria</span>
+                                    </div>
+                                    <div class="text-end">
+                                        <span class="badge bg-secondary me-1" id="previewFormat">PDF</span>
+                                        <span class="badge bg-dark" id="previewOrientation">Retrato</span>
+                                    </div>
+                                </div>
+
+                                <div class="preview-table-container table-responsive flex-grow-1">
+                                    <table class="table table-bordered table-striped preview-table text-center">
+                                        <thead>
+                                            <tr id="previewTableHeaders">
+                                                <!-- Dynamic headers loaded by JS -->
+                                                <th>Módulo</th>
+                                                <th>Total de Itens</th>
+                                                <th>Última Atualização</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="previewTableBody">
+                                            <tr>
+                                                <td class="text-muted small py-3" colspan="100%">[Prévia das colunas. Os dados serão gerados no download]</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-end gap-2 mt-4">
+                                <a href="/" class="btn btn-outline-secondary px-4">Voltar</a>
+                                <button type="submit" class="btn btn-gradient px-4">
+                                    <i class="bi bi-cloud-arrow-down-fill me-2"></i> Gerar e Baixar Relatório
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </form>
+
+    </div>
+
+    <!-- Bootstrap Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Script de Interatividade e Inteligência de Contexto -->
+    <script th:inline="javascript">
+        // Elementos DOM
+        const moduloSelect = document.getElementById('modulo');
+        const inputTitulo = document.getElementById('titulo');
+        const previewTitle = document.getElementById('previewTitle');
+        const previewBadgeModulo = document.getElementById('previewBadgeModulo');
+        const previewFormat = document.getElementById('previewFormat');
+        const previewOrientation = document.getElementById('previewOrientation');
+        const previewTableHeaders = document.getElementById('previewTableHeaders');
+        const previewTableBody = document.getElementById('previewTableBody');
+
+        // Mapeamento de Cabeçalhos para Prévia por Módulo
+        const colMap = {
+            computadores: {
+                id: 'ID',
+                hostname: 'Hostname',
+                serial: 'Nº Série',
+                ip: 'Endereço IP',
+                status: 'Status',
+                setor: 'Setor Alocado'
+            },
+            impressoras: {
+                id: 'ID',
+                marcaModelo: 'Marca/Modelo',
+                serial: 'Nº Série',
+                ip: 'Endereço IP',
+                setor: 'Setor'
+            },
+            monitores: {
+                id: 'ID',
+                marca: 'Marca',
+                modelo: 'Modelo',
+                serial: 'Nº Série',
+                computador: 'Comp. Alocado'
+            },
+            setores: {
+                id: 'ID',
+                nome: 'Nome do Setor',
+                bloco: 'Bloco'
+            },
+            geral: {
+                modulo: 'Módulo de Sistema',
+                total: 'Quantidade Total',
+                status: 'Status Consolidado'
+            }
+        };
+
+        // Atualiza o Título do Relatório na Prévia ao digitar
+        inputTitulo.addEventListener('input', function() {
+            previewTitle.textContent = this.value || 'Relatório de Inventário';
+        });
+
+        // Alterna entre os Módulos, ocultando/exibindo as colunas e filtros corretos
+        function switchModule(modulo) {
+            // Oculta todas as divs de opções
+            document.querySelectorAll('.opcao-modulo').forEach(el => {
+                el.classList.add('d-none');
+            });
+
+            // Exibe a div correspondente ao módulo selecionado
+            const targetDiv = document.getElementById(`opcoes-${modulo}`);
+            if (targetDiv) {
+                targetDiv.classList.remove('d-none');
+            }
+
+            // Atualiza os títulos e badges na prévia
+            let moduloNome = 'Geral';
+            if (modulo === 'computadores') moduloNome = 'Computadores';
+            else if (modulo === 'impressoras') moduloNome = 'Impressoras';
+            else if (modulo === 'monitores') moduloNome = 'Monitores';
+            else if (modulo === 'setores') moduloNome = 'Setores';
+
+            previewBadgeModulo.textContent = `Módulo: ${moduloNome}`;
+
+            // Define título sugerido se não estiver editado ou correspondente ao anterior
+            const currentTitle = inputTitulo.value;
+            if (currentTitle.startsWith('Relatório')) {
+                const novoTitulo = `Relatório de ${moduloNome}`;
+                inputTitulo.value = novoTitulo;
+                previewTitle.textContent = novoTitulo;
+            }
+
+            // Atualiza a tabela de prévia
+            updatePreviewTable();
+        }
+
+        // Atualiza a visualização do formato (PDF/Excel) na prévia
+        function updatePreviewFormat(formato) {
+            previewFormat.textContent = formato;
+            if (formato === 'PDF') {
+                previewFormat.className = 'badge bg-danger me-1';
+            } else {
+                previewFormat.className = 'badge bg-success me-1';
+            }
+        }
+
+        // Atualiza a orientação (Retrato/Paisagem) na prévia
+        function updatePreviewOrientation(orientacao) {
+            previewOrientation.textContent = orientacao;
+        }
+
+        // Monta os cabeçalhos da tabela de prévia baseado nos checkboxes marcados
+        function updatePreviewTable() {
+            const modulo = moduloSelect.value;
+            let headersHtml = '';
+
+            if (modulo === 'geral') {
+                // Layout geral padrão
+                headersHtml += `<th>Módulo</th><th>Itens Totais</th><th>Itens Ativos</th><th>Última Atualização</th>`;
+            } else {
+                // Lê checkboxes selecionados para o módulo
+                const checkboxes = document.querySelectorAll(`input[name="cols_${modulo}"]:checked`);
+                if (checkboxes.length === 0) {
+                    headersHtml = `<th class="text-danger">Selecione pelo menos uma coluna</th>`;
+                } else {
+                    checkboxes.forEach(cb => {
+                        const colKey = cb.value;
+                        const label = colMap[modulo][colKey] || colKey;
+                        headersHtml += `<th>${label}</th>`;
+                    });
+                }
+            }
+
+            previewTableHeaders.innerHTML = headersHtml;
+        }
+
+        // Configuração inicial quando a página carrega
+        window.addEventListener('DOMContentLoaded', () => {
+            // Executa switch para sincronizar visual com o módulo selecionado via Thymeleaf
+            const moduloInicial = moduloSelect.value;
+            switchModule(moduloInicial);
+
+            // Atualiza formato padrão
+            const formatoChecked = document.querySelector('input[name="formato"]:checked');
+            if (formatoChecked) {
+                updatePreviewFormat(formatoChecked.value);
+            }
+            
+            // Atualiza orientação padrão
+            const orientacaoChecked = document.querySelector('input[name="orientacao"]:checked');
+            if (orientacaoChecked) {
+                const label = orientacaoChecked.value === 'portrait' ? 'Retrato' : 'Paisagem';
+                updatePreviewOrientation(label);
+            }
+        });
+    </script>
+</body>
+</html>
