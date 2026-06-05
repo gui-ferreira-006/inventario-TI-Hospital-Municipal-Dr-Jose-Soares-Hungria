@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.data.domain.Pageable;
 
 @Repository
 public interface ComputadorRepository extends JpaRepository<Computador, Long> {
@@ -36,6 +37,11 @@ public interface ComputadorRepository extends JpaRepository<Computador, Long> {
     boolean existsByEnderecoIp(String enderecoIp);
 
     boolean existsByEnderecoIpAndIdNot(String enderecoIp, Long id);
+
+    List<Computador> findByStatus(String status, Pageable pageable);
+
+    @Query("SELECT c.status, COUNT(c) FROM Computador c GROUP BY c.status")
+    List<Object[]> countComputadoresGroupByStatus();
 }
 
 // Essa Classe permite realizar operações de CRUD (Create, Read, Update, Delete) na entidade Computador no Banco de Dados.
