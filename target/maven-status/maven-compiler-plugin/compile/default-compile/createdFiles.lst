@@ -17,4 +17,5 @@ inventario\model\Impressora.class
 inventario\model\Monitor.class
 inventario\model\Computador.class
 inventario\controller\RelatorioController.class
+inventario\model\Impressora$ManualValidation.class
 inventario\repository\ComputadorRepository.class

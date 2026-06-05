@@ -34,6 +34,7 @@
                             <th>Marca / Modelo</th>
                             <th>Serial</th>
                             <th>Endereço IP</th>
+                            <th>Status</th>
                             <th>Setor</th>
                             <th>Ações</th>
                         </tr>
@@ -44,6 +45,9 @@
                             <td th:text="${impressora.marcaModelo}">HP LaserJet</td>
                             <td th:text="${impressora.serialImpressora}">BR12345</td>
                             <td th:text="${impressora.enderecoIp}">192.168.160.1</td>
+                            <td>
+                                <span class="badge bg-info text-dark" th:text="${impressora.status}">Status</span>
+                            </td>
                             <td th:text="${impressora.setor != null ? impressora.setor.nome : 'Sem Setor alocado'}">TI</td>
                             <td>
                                 <a th:href="@{/impressoras/editar/{id}(id=${impressora.id})}"
@@ -59,7 +63,7 @@
                         </tr>
 
                         <tr th:if="${#lists.isEmpty(impressoras)}">
-                            <td colspan="6" class="text-center text-muted">Nenhuma impressora cadastrada ainda.</td>
+                            <td colspan="7" class="text-center text-muted">Nenhuma impressora cadastrada ainda.</td>
                         </tr>
                     </tbody>
                 </table>

@@ -17,6 +17,8 @@
             <div>
                 <a href="/relatorios/configurar?modulo=computadores" class="btn btn-outline-primary me-2">
                     📊 Gerar Relatório
+                <a href="/downloads/configuracao_vnc.zip" class="btn btn-outline-secondary me-2" title="Baixar arquivos de configuração e tutorial para VNC" download>
+                    Baixar Configuração VNC
                 </a>
                 <a href="/computadores/novo" class="btn btn-primary">+ Novo Computador</a>
             </div>
@@ -64,6 +66,9 @@
                             </td>
                             <td th:text="${comp.setor != null ? comp.setor.nome : 'Sem Setor alocado'}">TI</td>
                             <td>
+                                <a th:href="@{vnc://{host}(host=${comp.hostname})}" class="btn btn-info btn-sm me-2" title="Acesso Remoto VNC">
+                                    VNC
+                                </a>
                                 <a th:href="@{/computadores/editar/{id}(id=${comp.id})}" class="btn btn-warning btn-sm me-2">
                                     Editar
                                 </a>
