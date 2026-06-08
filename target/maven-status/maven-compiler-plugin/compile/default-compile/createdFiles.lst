@@ -2,6 +2,7 @@ inventario\util\PdfReportGenerator.class
 inventario\controller\SetorController.class
 inventario\repository\ImpressoraRepository.class
 inventario\controller\MonitorController.class
+inventario\service\ImpressoraTrocaService.class
 inventario\controller\ImpressoraController.class
 inventario\repository\SetorRepository.class
 inventario\util\PdfReportGenerator$HeaderFooterPageEvent.class
