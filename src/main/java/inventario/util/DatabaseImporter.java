@@ -13,6 +13,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
+import org.springframework.jdbc.core.JdbcTemplate;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -37,8 +38,19 @@ public class DatabaseImporter implements CommandLineRunner {
     @Autowired
     private MonitorRepository monitorRepository;
 
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
     @Override
     public void run(String... args) throws Exception {
+        // Garantir que a coluna endereco_ip aceita valores nulos no MySQL
+        try {
+            jdbcTemplate.execute("ALTER TABLE tb_impressoras MODIFY COLUMN endereco_ip VARCHAR(255) NULL");
+            System.out.println("[DB-PATCH] Alterada coluna endereco_ip da tabela tb_impressoras para permitir valores NULL.");
+        } catch (Exception e) {
+            System.err.println("[DB-PATCH] Erro ao alterar coluna endereco_ip: " + e.getMessage());
+        }
+
         System.out.println("\n==================================================");
         System.out.println("   INICIANDO IMPORTAÇÃO DE COMPUTADORES");
         System.out.println("==================================================");
