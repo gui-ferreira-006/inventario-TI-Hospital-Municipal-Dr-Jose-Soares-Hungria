@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Substituição de Impressora</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <style>
+        /* Custom Select2 styling for Bootstrap 5 integration */
+        .select2-container--default .select2-selection--single {
+            height: calc(2.25rem + 2px);
+            border: 1px solid #dee2e6;
+            border-radius: 0.375rem;
+            padding: 0.375rem 0.75rem;
+            background-color: #fff;
+            transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+        }
+        .select2-container--default .select2-selection--single:focus {
+            border-color: #86b7fe;
+            outline: 0;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        }
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: 1.5;
+            padding-left: 0;
+            color: #212529;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: calc(2.25rem + 2px);
+            right: 10px;
+        }
+        .select2-dropdown {
+            border: 1px solid #dee2e6;
+            border-radius: 0.375rem;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        }
+        .select2-container--default .select2-results__option--highlighted[aria-selected] {
+            background-color: #198754;
+            color: white;
+        }
+    </style>
+</head>
+<body class="bg-light">
+
+    <div th:replace="~{fragments/menu :: navbar}"></div>
+
+    <div class="container py-4">
+        
+        <div class="row justify-content-center mb-4">
+            <div class="col-lg-10">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <h2 class="fw-bold text-dark">🔄 Substituição de Impressora</h2>
+                        <p class="text-muted mb-0">Troque um equipamento avariado por outro do estoque com transferência imediata de rede e setor.</p>
+                    </div>
+                    <a href="/impressoras" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Voltar à Lista
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="row g-4">
+                    
+                    <!-- Cartão Esquerdo (Avariada - Somente Leitura) -->
+                    <div class="col-md-6">
+                        <div class="card h-100 border-danger border-2 shadow-sm">
+                            <div class="card-header bg-danger text-white py-3">
+                                <h5 class="mb-0 fw-semibold"><i class="bi bi-exclamation-triangle-fill"></i> Equipamento Avariado</h5>
+                            </div>
+                            <div class="card-body bg-danger-subtle bg-opacity-10 py-4">
+                                <p class="text-danger fw-bold mb-4">Esta impressora será retirada de uso e movida para manutenção (Reserva TI). O IP e o Setor atuais serão liberados.</p>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold text-secondary text-uppercase small">Marca / Modelo</label>
+                                    <div class="fs-5 fw-semibold text-dark" th:text="${impressoraAvariada.marcaModelo}">HP LaserJet</div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold text-secondary text-uppercase small">Número de Série</label>
+                                    <div class="fs-6 fw-mono text-dark" th:text="${impressoraAvariada.serialImpressora != null ? impressoraAvariada.serialImpressora : 'Sem Número de Série'}">BR12345</div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold text-secondary text-uppercase small">Endereço IP Atual</label>
+                                    <div>
+                                        <span class="badge bg-secondary fs-6" th:text="${impressoraAvariada.enderecoIp != null ? impressoraAvariada.enderecoIp : 'Sem IP configurado'}">192.168.160.1</span>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold text-secondary text-uppercase small">Setor Atual</label>
+                                    <div class="fs-6 text-dark">
+                                        <i class="bi bi-building"></i> 
+                                        <span th:text="${impressoraAvariada.setor != null ? impressoraAvariada.setor.nome : 'Sem Setor alocado'}">TI</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cartão Direito (Substituta) -->
+                    <div class="col-md-6">
+                        <div class="card h-100 border-success border-2 shadow-sm">
+                            <div class="card-header bg-success text-white py-3">
+                                <h5 class="mb-0 fw-semibold"><i class="bi bi-check-circle-fill"></i> Equipamento Substituto</h5>
+                            </div>
+                            <div class="card-body py-4">
+                                <p class="text-muted mb-4">Escolha a impressora que irá substituir a avariada. Ela herdará automaticamente o <strong>Endereço IP</strong> e o <strong>Setor</strong>.</p>
+                                
+                                <form th:action="@{/impressoras/troca/confirmar}" method="post">
+                                    <!-- Inputs ocultos para ID Avariada -->
+                                    <input type="hidden" name="idAvariada" th:value="${impressoraAvariada.id}">
+
+                                    <div class="mb-4">
+                                        <label for="idSubstituta" class="form-label fw-bold text-secondary text-uppercase small">Selecione a nova Impressora</label>
+                                        <select id="idSubstituta" name="idSubstituta" class="form-select select2-busca" required style="width: 100%;">
+                                            <option value="">-- Buscar Impressora no Estoque --</option>
+                                            <option th:each="disp : ${impressorasDisponiveis}"
+                                                    th:value="${disp.id}"
+                                                    th:text="${disp.marcaModelo} + ' (Série: ' + ${disp.serialImpressora != null ? disp.serialImpressora : 'N/A'} + ') - Setor: ' + ${disp.setor != null ? disp.setor.nome : 'Sem Setor'}"></option>
+                                        </select>
+                                    </div>
+
+                                    <div class="alert alert-info border-0 shadow-none d-flex align-items-start mt-4" role="alert">
+                                        <i class="bi bi-info-circle-fill text-info fs-5 me-2"></i>
+                                        <div>
+                                            A troca será realizada de forma atômica no banco de dados para prevenir qualquer erro de IP duplicado.
+                                        </div>
+                                    </div>
+
+                                    <div class="d-flex justify-content-end gap-2 mt-5">
+                                        <a href="/impressoras" class="btn btn-light border">Cancelar</a>
+                                        <button type="submit" class="btn btn-success fw-semibold">
+                                            <i class="bi bi-arrow-left-right"></i> Confirmar Troca
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Scripts CDN -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Inicializar Select2 na classe especificada com suporte a internacionalização simples
+            $('.select2-busca').select2({
+                placeholder: "-- Buscar Impressora no Estoque --",
+                allowClear: true,
+                language: {
+                    noResults: function() {
+                        return "Nenhuma impressora disponível encontrada";
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
