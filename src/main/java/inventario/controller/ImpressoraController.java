@@ -5,10 +5,12 @@ import inventario.repository.ImpressoraRepository;
 import inventario.repository.SetorRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 @Controller
 @RequestMapping("/impressoras")
@@ -21,8 +23,39 @@ public class ImpressoraController {
     private SetorRepository setorRepository;
 
     @GetMapping
-    public String listarImpressoras(Model model) {
-        model.addAttribute("impressoras", impressoraRepository.findAll());
+    public String listarImpressoras(
+            @RequestParam(value = "termo", required = false) String termo,
+            @RequestParam(value = "ordenarPor", required = false, defaultValue = "id") String ordenarPor,
+            @RequestParam(value = "direcao", required = false, defaultValue = "ASC") String direcao,
+            Model model) {
+
+        Sort.Direction dir = "DESC".equalsIgnoreCase(direcao) ? Sort.Direction.DESC : Sort.Direction.ASC;
+        String propriedade = "id";
+
+        if ("marcaModelo".equalsIgnoreCase(ordenarPor)) {
+            propriedade = "marcaModelo";
+        } else if ("enderecoIp".equalsIgnoreCase(ordenarPor)) {
+            propriedade = "enderecoIp";
+        } else if ("status".equalsIgnoreCase(ordenarPor)) {
+            propriedade = "status";
+        } else if ("setor".equalsIgnoreCase(ordenarPor)) {
+            propriedade = "setor.nome";
+        }
+
+        Sort sort = Sort.by(dir, propriedade);
+        List<Impressora> impressoras;
+
+        if (termo != null && !termo.trim().isEmpty()) {
+            impressoras = impressoraRepository.pesquisarGlobal(termo.trim(), sort);
+            model.addAttribute("termoBusca", termo.trim());
+        } else {
+            impressoras = impressoraRepository.findAll(sort);
+        }
+
+        model.addAttribute("impressoras", impressoras);
+        model.addAttribute("ordenarPor", ordenarPor);
+        model.addAttribute("direcao", direcao);
+
         return "impressoras/lista";
     }
 
