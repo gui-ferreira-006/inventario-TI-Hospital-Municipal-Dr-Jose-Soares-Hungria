@@ -19,6 +19,12 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
 
+        <!-- Mensagem de erro após troca -->
+        <div th:if="${param.erro}" class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+            <strong>Erro:</strong> <span th:text="${param.erro}">Ocorreu um erro ao realizar a troca.</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1>Inventário de Impressoras</h1>
             <div>
@@ -26,6 +32,54 @@
                     📊 Gerar Relatório
                 </a>
                 <a href="/impressoras/novo" class="btn btn-primary">+ Nova Impressora</a>
+            </div>
+        </div>
+
+        <!-- Barra de Busca e Filtros -->
+        <div class="card mb-4 shadow-sm">
+            <div class="card-body">
+                <form th:action="@{/impressoras}" method="get">
+                    <div class="row g-3 align-items-center">
+                        <!-- Busca -->
+                        <div class="col-md-12 col-lg-5">
+                            <div class="input-group">
+                                <span class="input-group-text bg-primary text-white"><i class="bi bi-search"></i></span>
+                                <input type="text" class="form-control" name="termo" th:value="${termoBusca}"
+                                       placeholder="Pesquisar por Marca, Modelo, Serial, IP, Status ou Setor...">
+                            </div>
+                        </div>
+                        
+                        <!-- Ordenação -->
+                        <div class="col-md-5 col-lg-3">
+                            <div class="input-group">
+                                <span class="input-group-text bg-light text-secondary"><i class="bi bi-sort-down"></i></span>
+                                <select class="form-select" name="ordenarPor">
+                                    <option value="id" th:selected="${ordenarPor == 'id'}">Ordenar por ID</option>
+                                    <option value="marcaModelo" th:selected="${ordenarPor == 'marcaModelo'}">Ordenar por Marca/Modelo</option>
+                                    <option value="enderecoIp" th:selected="${ordenarPor == 'enderecoIp'}">Ordenar por IP</option>
+                                    <option value="status" th:selected="${ordenarPor == 'status'}">Ordenar por Status</option>
+                                    <option value="setor" th:selected="${ordenarPor == 'setor'}">Ordenar por Setor</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Direção -->
+                        <div class="col-md-4 col-lg-2">
+                            <select class="form-select" name="direcao">
+                                <option value="ASC" th:selected="${direcao == 'ASC'}">Crescente</option>
+                                <option value="DESC" th:selected="${direcao == 'DESC'}">Decrescente</option>
+                            </select>
+                        </div>
+
+                        <!-- Botões -->
+                        <div class="col-md-3 col-lg-2 d-flex gap-2">
+                            <button class="btn btn-primary flex-grow-1" type="submit">Filtrar</button>
+                            <a href="/impressoras" class="btn btn-outline-secondary" title="Limpar todos os filtros">
+                                <i class="bi bi-x-circle"></i>
+                            </a>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
     
