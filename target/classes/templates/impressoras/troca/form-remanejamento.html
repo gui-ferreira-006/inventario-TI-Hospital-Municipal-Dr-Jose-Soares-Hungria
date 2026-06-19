@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Substituição de Impressora</title>
+    <title>Remanejamento Interno</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <style>
-        /* Custom Select2 styling for Bootstrap 5 integration */
         .select2-container--default .select2-selection--single {
             height: calc(2.25rem + 2px);
             border: 1px solid #dee2e6;
@@ -37,7 +36,7 @@
             box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
         }
         .select2-container--default .select2-results__option--highlighted[aria-selected] {
-            background-color: #198754;
+            background-color: #0d6efd;
             color: white;
         }
     </style>
@@ -52,11 +51,11 @@
             <div class="col-lg-10">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
-                        <h2 class="fw-bold text-dark">🔄 Substituição de Impressora</h2>
-                        <p class="text-muted mb-0">Troque um equipamento avariado por outro do estoque com transferência imediata de rede e setor.</p>
+                        <h2 class="fw-bold text-dark">🔄 Remanejamento Interno - Impressora</h2>
+                        <p class="text-muted mb-0">Cruze as posições, setores e IPs de duas impressoras ativas na rede.</p>
                     </div>
-                    <a href="/impressoras" class="btn btn-outline-secondary">
-                        <i class="bi bi-arrow-left"></i> Voltar à Lista
+                    <a th:href="@{/impressoras/troca/{id}(id=${impressoraOrigem.id})}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Voltar
                     </a>
                 </div>
             </div>
@@ -66,29 +65,29 @@
             <div class="col-lg-10">
                 <div class="row g-4">
                     
-                    <!-- Cartão Esquerdo (Avariada - Somente Leitura) -->
+                    <!-- Coluna Esquerda (Origem - Neutro/Azul) -->
                     <div class="col-md-6">
-                        <div class="card h-100 border-danger border-2 shadow-sm">
-                            <div class="card-header bg-danger text-white py-3">
-                                <h5 class="mb-0 fw-semibold"><i class="bi bi-exclamation-triangle-fill"></i> Equipamento Avariado</h5>
+                        <div class="card h-100 border-primary border-2 shadow-sm">
+                            <div class="card-header bg-primary text-white py-3">
+                                <h5 class="mb-0 fw-semibold"><i class="bi bi-info-circle-fill"></i> Equipamento de Origem</h5>
                             </div>
-                            <div class="card-body bg-danger-subtle bg-opacity-10 py-4">
-                                <p class="text-danger fw-bold mb-4">Esta impressora será retirada de uso e movida para manutenção (Reserva TI). O IP e o Setor atuais serão liberados.</p>
+                            <div class="card-body bg-primary-subtle bg-opacity-10 py-4">
+                                <p class="text-primary fw-bold mb-4">Esta impressora ativa trocará de IP e Setor com outra impressora ativa selecionada.</p>
                                 
                                 <div class="mb-3">
                                     <label class="form-label fw-bold text-secondary text-uppercase small">Marca / Modelo</label>
-                                    <div class="fs-5 fw-semibold text-dark" th:text="${impressoraAvariada.marcaModelo}">HP LaserJet</div>
+                                    <div class="fs-5 fw-semibold text-dark" th:text="${impressoraOrigem.marcaModelo}">HP LaserJet</div>
                                 </div>
 
                                 <div class="mb-3">
                                     <label class="form-label fw-bold text-secondary text-uppercase small">Número de Série</label>
-                                    <div class="fs-6 fw-mono text-dark" th:text="${impressoraAvariada.serialImpressora != null ? impressoraAvariada.serialImpressora : 'Sem Número de Série'}">BR12345</div>
+                                    <div class="fs-6 fw-mono text-dark" th:text="${impressoraOrigem.serialImpressora != null ? impressoraOrigem.serialImpressora : 'Sem Número de Série'}">BR12345</div>
                                 </div>
 
                                 <div class="mb-3">
                                     <label class="form-label fw-bold text-secondary text-uppercase small">Endereço IP Atual</label>
                                     <div>
-                                        <span class="badge bg-secondary fs-6" th:text="${impressoraAvariada.enderecoIp != null ? impressoraAvariada.enderecoIp : 'Sem IP configurado'}">192.168.160.1</span>
+                                        <span class="badge bg-primary fs-6" th:text="${impressoraOrigem.enderecoIp != null ? impressoraOrigem.enderecoIp : 'Sem IP configurado'}">192.168.160.1</span>
                                     </div>
                                 </div>
 
@@ -96,47 +95,48 @@
                                     <label class="form-label fw-bold text-secondary text-uppercase small">Setor Atual</label>
                                     <div class="fs-6 text-dark">
                                         <i class="bi bi-building"></i> 
-                                        <span th:text="${impressoraAvariada.setor != null ? impressoraAvariada.setor.nome : 'Sem Setor alocado'}">TI</span>
+                                        <span th:text="${impressoraOrigem.setor != null ? impressoraOrigem.setor.nome : 'Sem Setor alocado'}">TI</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Cartão Direito (Substituta) -->
+                    <!-- Coluna Direita (Formulário Destino) -->
                     <div class="col-md-6">
-                        <div class="card h-100 border-success border-2 shadow-sm">
-                            <div class="card-header bg-success text-white py-3">
-                                <h5 class="mb-0 fw-semibold"><i class="bi bi-check-circle-fill"></i> Equipamento Substituto</h5>
+                        <div class="card h-100 border-primary border-2 shadow-sm">
+                            <div class="card-header bg-primary text-white py-3">
+                                <h5 class="mb-0 fw-semibold"><i class="bi bi-check-circle-fill"></i> Selecionar Equipamento de Destino</h5>
                             </div>
                             <div class="card-body py-4">
-                                <p class="text-muted mb-4">Escolha a impressora que irá substituir a avariada. Ela herdará automaticamente o <strong>Endereço IP</strong> e o <strong>Setor</strong>.</p>
+                                <p class="text-muted mb-4">Escolha a impressora ativa para cruzar IPs e Setores com o equipamento de origem.</p>
                                 
                                 <form th:action="@{/impressoras/troca/confirmar}" method="post">
-                                    <!-- Inputs ocultos para ID Avariada -->
-                                    <input type="hidden" name="idAvariada" th:value="${impressoraAvariada.id}">
+                                    <!-- Inputs ocultos para Controle -->
+                                    <input type="hidden" name="idAvariada" th:value="${impressoraOrigem.id}">
+                                    <input type="hidden" name="tipoTroca" value="REMANEJAMENTO">
 
                                     <div class="mb-4">
-                                        <label for="idSubstituta" class="form-label fw-bold text-secondary text-uppercase small">Selecione a nova Impressora</label>
+                                        <label for="idSubstituta" class="form-label fw-bold text-secondary text-uppercase small">Selecione a Impressora de Destino (Ativa)</label>
                                         <select id="idSubstituta" name="idSubstituta" class="form-select select2-busca" required style="width: 100%;">
-                                            <option value="">-- Buscar Impressora no Estoque --</option>
-                                            <option th:each="disp : ${impressorasDisponiveis}"
+                                            <option value="">-- Buscar Impressora Ativa --</option>
+                                            <option th:each="disp : ${impressorasAtivas}"
                                                     th:value="${disp.id}"
-                                                    th:text="${disp.marcaModelo} + ' (Série: ' + ${disp.serialImpressora != null ? disp.serialImpressora : 'N/A'} + ') - Setor: ' + ${disp.setor != null ? disp.setor.nome : 'Sem Setor'}"></option>
+                                                    th:text="${disp.marcaModelo} + ' (Série: ' + ${disp.serialImpressora != null ? disp.serialImpressora : 'N/A'} + ') - IP: ' + ${disp.enderecoIp != null ? disp.enderecoIp : 'Sem IP'} + ' - Setor: ' + ${disp.setor != null ? disp.setor.nome : 'Sem Setor'}"></option>
                                         </select>
                                     </div>
 
-                                    <div class="alert alert-info border-0 shadow-none d-flex align-items-start mt-4" role="alert">
-                                        <i class="bi bi-info-circle-fill text-info fs-5 me-2"></i>
+                                    <div class="alert alert-warning border-0 shadow-none d-flex align-items-start mt-4" role="alert">
+                                        <i class="bi bi-info-circle-fill text-warning fs-5 me-2"></i>
                                         <div>
-                                            A troca será realizada de forma atômica no banco de dados para prevenir qualquer erro de IP duplicado.
+                                            A máquina selecionada vai herdar o IP atual.
                                         </div>
                                     </div>
 
                                     <div class="d-flex justify-content-end gap-2 mt-5">
-                                        <a href="/impressoras" class="btn btn-light border">Cancelar</a>
-                                        <button type="submit" class="btn btn-success fw-semibold">
-                                            <i class="bi bi-arrow-left-right"></i> Confirmar Troca
+                                        <a th:href="@{/impressoras/troca/{id}(id=${impressoraOrigem.id})}" class="btn btn-light border">Cancelar</a>
+                                        <button type="submit" class="btn btn-primary fw-semibold">
+                                            <i class="bi bi-arrow-left-right"></i> Confirmar Remanejamento
                                         </button>
                                     </div>
                                 </form>
@@ -155,13 +155,12 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         $(document).ready(function() {
-            // Inicializar Select2 na classe especificada com suporte a internacionalização simples
             $('.select2-busca').select2({
-                placeholder: "-- Buscar Impressora no Estoque --",
+                placeholder: "-- Buscar Impressora Ativa --",
                 allowClear: true,
                 language: {
                     noResults: function() {
-                        return "Nenhuma impressora disponível encontrada";
+                        return "Nenhuma impressora ativa encontrada";
                     }
                 }
             });
