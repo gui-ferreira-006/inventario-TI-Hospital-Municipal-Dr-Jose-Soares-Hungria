@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.domain.Pageable;
 
+import org.springframework.data.domain.Sort;
+
 @Repository
 public interface ComputadorRepository extends JpaRepository<Computador, Long> {
 
@@ -16,9 +18,10 @@ public interface ComputadorRepository extends JpaRepository<Computador, Long> {
         "WHERE LOWER(c.serialComputador) LIKE LOWER(CONCAT('%', :termo, '%')) OR " + 
         "LOWER(c.hostname) LIKE LOWER(CONCAT('%', :termo, '%')) OR " +
         "LOWER(c.enderecoIp) LIKE LOWER(CONCAT('%', :termo, '%')) OR " +
+        "LOWER(c.status) LIKE LOWER(CONCAT('%', :termo, '%')) OR " +
         "(LOWER(s.nome) LIKE LOWER(CONCAT('%', :termo, '%')) AND c.status = 'Ativo no Setor')"
     )
-    List<Computador> pesquisarGlobal(@Param("termo") String termo);
+    List<Computador> pesquisarGlobal(@Param("termo") String termo, Sort sort);
 
     // --- Validações de Duplicidade para o Hostname ---
     boolean existsByHostname(String hostname);
