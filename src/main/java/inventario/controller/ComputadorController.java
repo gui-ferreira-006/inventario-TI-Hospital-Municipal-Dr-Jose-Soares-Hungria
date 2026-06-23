@@ -5,10 +5,12 @@ import inventario.repository.ComputadorRepository;
 import inventario.repository.SetorRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 @Controller
 @RequestMapping("/computadores")
@@ -21,13 +23,41 @@ public class ComputadorController {
     private SetorRepository setorRepository;
 
     @GetMapping
-    public String listarComputadores(@RequestParam(value = "termo", required = false) String termo, Model model) {
+    public String listarComputadores(
+            @RequestParam(value = "termo", required = false) String termo,
+            @RequestParam(value = "ordenarPor", required = false, defaultValue = "setor") String ordenarPor,
+            @RequestParam(value = "direcao", required = false, defaultValue = "ASC") String direcao,
+            Model model) {
+
+        Sort.Direction dir = "DESC".equalsIgnoreCase(direcao) ? Sort.Direction.DESC : Sort.Direction.ASC;
+        String propriedade = "id";
+
+        if ("hostname".equalsIgnoreCase(ordenarPor)) {
+            propriedade = "hostname";
+        } else if ("serialComputador".equalsIgnoreCase(ordenarPor)) {
+            propriedade = "serialComputador";
+        } else if ("enderecoIp".equalsIgnoreCase(ordenarPor)) {
+            propriedade = "enderecoIp";
+        } else if ("status".equalsIgnoreCase(ordenarPor)) {
+            propriedade = "status";
+        } else if ("setor".equalsIgnoreCase(ordenarPor)) {
+            propriedade = "setor.nome";
+        }
+
+        Sort sort = Sort.by(dir, propriedade);
+        List<Computador> computadores;
+
         if (termo != null && !termo.trim().isEmpty()) {
-            model.addAttribute("computadores", computadorRepository.pesquisarGlobal(termo.trim()));
+            computadores = computadorRepository.pesquisarGlobal(termo.trim(), sort);
             model.addAttribute("termoBusca", termo.trim());
         } else {
-            model.addAttribute("computadores", computadorRepository.findAll());
+            computadores = computadorRepository.findAll(sort);
         }
+
+        model.addAttribute("computadores", computadores);
+        model.addAttribute("ordenarPor", ordenarPor);
+        model.addAttribute("direcao", direcao);
+
         return "computadores/lista";
     }
 
