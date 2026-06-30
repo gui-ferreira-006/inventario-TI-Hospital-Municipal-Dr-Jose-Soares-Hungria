@@ -87,7 +87,7 @@
                                 <div class="mb-3">
                                     <label class="form-label fw-bold text-secondary text-uppercase small">Endereço IP Atual</label>
                                     <div>
-                                        <span class="badge bg-primary fs-6" th:text="${impressoraOrigem.enderecoIp != null ? impressoraOrigem.enderecoIp : 'Sem IP configurado'}">192.168.160.1</span>
+                                        <span class="badge bg-primary fs-6" th:text="${impressoraOrigem.redeIp != null ? impressoraOrigem.redeIp.enderecoIp : 'Sem IP configurado'}">192.168.160.1</span>
                                     </div>
                                 </div>
 
@@ -122,7 +122,7 @@
                                             <option value="">-- Buscar Impressora Ativa --</option>
                                             <option th:each="disp : ${impressorasAtivas}"
                                                     th:value="${disp.id}"
-                                                    th:text="${disp.marcaModelo} + ' (Série: ' + ${disp.serialImpressora != null ? disp.serialImpressora : 'N/A'} + ') - IP: ' + ${disp.enderecoIp != null ? disp.enderecoIp : 'Sem IP'} + ' - Setor: ' + ${disp.setor != null ? disp.setor.nome : 'Sem Setor'}"></option>
+                                                    th:text="${disp.marcaModelo} + ' (Série: ' + ${disp.serialImpressora != null ? disp.serialImpressora : 'N/A'} + ') - IP: ' + ${disp.redeIp != null ? disp.redeIp.enderecoIp : 'Sem IP'} + ' - Setor: ' + ${disp.setor != null ? disp.setor.nome : 'Sem Setor'}"></option>
                                         </select>
                                     </div>
 

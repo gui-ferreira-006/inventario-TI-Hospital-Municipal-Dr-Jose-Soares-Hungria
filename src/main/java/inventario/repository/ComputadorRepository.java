@@ -15,9 +15,10 @@ public interface ComputadorRepository extends JpaRepository<Computador, Long> {
 
     @Query("SELECT c FROM Computador c " +
         "LEFT JOIN c.setor s " +
+        "LEFT JOIN c.redeIp r " +
         "WHERE LOWER(c.serialComputador) LIKE LOWER(CONCAT('%', :termo, '%')) OR " + 
         "LOWER(c.hostname) LIKE LOWER(CONCAT('%', :termo, '%')) OR " +
-        "LOWER(c.enderecoIp) LIKE LOWER(CONCAT('%', :termo, '%')) OR " +
+        "LOWER(r.enderecoIp) LIKE LOWER(CONCAT('%', :termo, '%')) OR " +
         "LOWER(c.status) LIKE LOWER(CONCAT('%', :termo, '%')) OR " +
         "(LOWER(s.nome) LIKE LOWER(CONCAT('%', :termo, '%')) AND c.status = 'Ativo no Setor')"
     )
@@ -35,11 +36,6 @@ public interface ComputadorRepository extends JpaRepository<Computador, Long> {
     boolean existsBySerialComputador(String serialComputador);
 
     boolean existsBySerialComputadorAndIdNot(String serialComputador, Long id);
-
-    // --- Validações de Duplicidade para o Endereço IP ---
-    boolean existsByEnderecoIp(String enderecoIp);
-
-    boolean existsByEnderecoIpAndIdNot(String enderecoIp, Long id);
 
     List<Computador> findByStatus(String status, Pageable pageable);
 

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhes do Endereço IP</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    
+    <div th:replace="~{fragments/menu :: navbar}"></div>
+
+    <div class="container">
+        <div class="card shadow-sm mt-4">
+            <div class="card-header bg-success text-white">
+                <h4 class="mb-0">Detalhes do Endereço IP</h4>
+            </div>
+            <div class="card-body">
+
+                <form th:action="@{/redes/salvar}" th:object="${ip}" method="post">
+
+                    <input type="hidden" th:field="*{id}">
+                    <input type="hidden" th:field="*{version}">
+
+                    <div class="row">
+                        <!-- Campo 1 (Endereço IP) -->
+                        <div class="col-md-6 mb-3">
+                            <label for="enderecoIp" class="form-label">Endereço IP</label>
+                            <input type="text" id="enderecoIp" class="form-control" th:field="*{enderecoIp}"
+                                   th:readonly="${ip.status != null and ip.status.name() == 'OCUPADO'}"
+                                   th:classappend="${#fields.hasErrors('enderecoIp')} ? 'is-invalid'">
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('enderecoIp')}" th:errors="*{enderecoIp}"></div>
+                        </div>
+
+                        <!-- Campo 2 (Status) -->
+                        <div class="col-md-6 mb-3">
+                            <label for="status" class="form-label">Status</label>
+                            <select class="form-select" id="status" th:field="*{status}" 
+                                    th:disabled="${ip.status != null and ip.status.name() == 'OCUPADO'}"
+                                    th:classappend="${#fields.hasErrors('status')} ? 'is-invalid'">
+                                <option value="LIVRE">LIVRE (Disponível para uso)</option>
+                                <option value="RESERVADO">RESERVADO (Guardado para infraestrutura)</option>
+                                <option value="INATIVO">INATIVO (Porta com defeito/Desativado)</option>
+                                <!-- Exibe OCUPADO na lista APENAS se o IP já vier do banco como ocupado -->
+                                <option value="OCUPADO" th:if="${ip.status != null and ip.status.name() == 'OCUPADO'}">OCUPADO (Vinculado a um equipamento)</option>
+                            </select>
+                            <!-- Se estiver OCUPADO, enviamos o valor via hidden para não perder o binding no Spring -->
+                            <input type="hidden" th:if="${ip.status != null and ip.status.name() == 'OCUPADO'}" name="status" th:value="${ip.status}">
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('status')}" th:errors="*{status}"></div>
+                        </div>
+                    </div>
+
+                    <!-- Campo 3 (Observação) -->
+                    <div class="mb-4">
+                        <label for="observacao" class="form-label">Observação</label>
+                        <textarea id="observacao" class="form-control" th:field="*{observacao}" rows="3"
+                                  placeholder="Escreva uma observação (ex: Gateway Principal)"
+                                  th:classappend="${#fields.hasErrors('observacao')} ? 'is-invalid'"></textarea>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('observacao')}" th:errors="*{observacao}"></div>
+                    </div>
+
+                    <div class="d-flex justify-content-end mt-4">
+                        <a href="/redes" class="btn btn-secondary me-2">Cancelar</a>
+                        <button type="submit" class="btn btn-success">Salvar IP</button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

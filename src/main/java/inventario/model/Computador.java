@@ -23,11 +23,9 @@ public class Computador {
     @Column(nullable = false, unique = true, name = "serial_computador")
     private String serialComputador;
 
-    // --- IP COM VALIDAÇÃO DE FORMATO (REGEX) ---
-    // Só aceita o formato X.X.X.X (ex: 192.168.0.1)
-    @Pattern(regexp = "^([0-9]{1,3}\\.){3}[0-9]{1,3}$", message = "Formato de IP inválido. Ex: 192.168.0.1")
-    @Column(unique = true)
-    private String enderecoIp;
+    @OneToOne
+    @JoinColumn(name = "rede_ip_id")
+    private RedeIp redeIp;
 
     private String status;
 
@@ -67,17 +65,6 @@ public class Computador {
         this.serialComputador = serialComputador;
     }
 
-    public String getEnderecoIp() {
-        return enderecoIp;
-    }
-
-    public void setEnderecoIp(String enderecoIp) {
-        if (enderecoIp != null && enderecoIp.trim().isEmpty()) {
-            this.enderecoIp = null;
-        } else {
-            this.enderecoIp = enderecoIp;
-        }
-    }
 
     public String getStatus() {
         return status;
@@ -93,5 +80,13 @@ public class Computador {
 
     public void setSetor(Setor setor) {
         this.setor = setor;
+    }
+
+    public RedeIp getRedeIp() {
+        return redeIp;
+    }
+
+    public void setRedeIp(RedeIp redeIp) {
+        this.redeIp = redeIp;
     }
 }

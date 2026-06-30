@@ -9,7 +9,11 @@
     <style>
         .card-menu { transition: transform 0.2s; cursor: pointer; }
         .card-menu:hover { transform: translateY(-5px); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); }
-        .icon-large { font-size: 3rem; color: #0d6efd; }
+        .icon-large { font-size: 2.2rem; }
+        .border-purple { border-color: #b19ffb !important; }
+        .text-purple { color: #8a70f7 !important; }
+        .btn-purple { background-color: #8a70f7 !important; border-color: #8a70f7 !important; color: white !important; }
+        .btn-purple:hover { background-color: #7256e5 !important; border-color: #7256e5 !important; color: white !important; }
     </style>
 </head>
 <body class="bg-light">
@@ -17,58 +21,70 @@
     <div th:replace="~{fragments/menu :: navbar}"></div>
 
     <div class="container">
-        <div class="row mb-4">
+        <div class="row mb-3">
             <div class="col-12">
                 <h2 class="fw-bold">Visão Geral</h2>
-                <p class="text-muted">Selecione o módulo que deseja gerenciar.</p>
+                <p class="text-muted small">Selecione o módulo que deseja gerenciar.</p>
             </div>
         </div>
 
-        <div class="row g-4">
-            <div class="col-md-3">
+        <div class="row row-cols-1 row-cols-md-5 g-3">
+            <div class="col">
                 <div class="card card-menu h-100 border-primary" onclick="window.location.href='/computadores'">
-                   <div class="card-body text-center py-5">
-                    <i class="bi bi-pc-display icon-large mb-3 d-block"></i>
-                    <h1 class="display-4 fw-bold text-primary mb-2" th:text="${totalComputadores}">0</h1>
-                    <h4 class="card-title fw-bold">Computadores</h4>
-                    <p class="card-text text-muted">Gerencie o parque de máquinas, seriais e IPs.</p>
-                    <a href="/computadores" class="btn btn-primary mt-2">Acessar Módulo</a>
+                   <div class="card-body text-center py-4">
+                    <i class="bi bi-pc-display icon-large text-primary mb-2 d-block"></i>
+                    <h1 class="display-6 fw-bold text-primary mb-2" th:text="${totalComputadores}">0</h1>
+                    <h5 class="card-title fw-bold">Computadores</h5>
+                    <p class="card-text text-muted small">Gerencie o parque de máquinas, seriais e IPs.</p>
+                    <a href="/computadores" class="btn btn-primary btn-sm mt-2">Acessar Módulo</a>
                    </div> 
                 </div>
             </div>
 
-            <div class="col-md-3">
+            <div class="col">
                 <div class="card card-menu h-100 border-success" onclick="window.location.href='/setores'">
-                    <div class="card-body text-center py-5">
-                        <i class="bi bi-building icon-large text-success mb-3 d-block"></i>
-                        <h1 class="display-4 fw-bold text-success mb-2" th:text="${totalSetores}">0</h1>
-                        <h4 class="card-title fw-bold">Departamentos</h4>
-                        <p class="card-text text-muted">Cadastre e organize os blocos e setores do hospital.</p>
-                        <a href="/setores" class="btn btn-success mt-2">Acessar Módulo</a>
+                    <div class="card-body text-center py-4">
+                        <i class="bi bi-building icon-large text-success mb-2 d-block"></i>
+                        <h1 class="display-6 fw-bold text-success mb-2" th:text="${totalSetores}">0</h1>
+                        <h5 class="card-title fw-bold">Departamentos</h5>
+                        <p class="card-text text-muted small">Cadastre e organize setores do hospital.</p>
+                        <a href="/setores" class="btn btn-success btn-sm mt-2">Acessar Módulo</a>
                     </div>
                 </div>
             </div>
 
-            <div class="col-md-3">
+            <div class="col">
                 <div class="card card-menu h-100 border-secondary" onclick="window.location.href='/impressoras'">
-                    <div class="card-body text-center py-5">
-                        <i class="bi bi-printer icon-large text-secondary mb-3 d-block"></i>
-                        <h1 class="display-4 fw-bold text-secondary mb-2" th:text="${totalImpressoras}">0</h1>
-                        <h4 class="card-title fw-bold">Impressoras</h4>
-                        <p class="card-text text-muted">Gerencie o parque de impressoras, seriais e IPs.</p>
-                        <a href="/impressoras" class="btn btn-secondary mt-2">Acessar Módulo</a>
+                    <div class="card-body text-center py-4">
+                        <i class="bi bi-printer icon-large text-secondary mb-2 d-block"></i>
+                        <h1 class="display-6 fw-bold text-secondary mb-2" th:text="${totalImpressoras}">0</h1>
+                        <h5 class="card-title fw-bold">Impressoras</h5>
+                        <p class="card-text text-muted small">Gerencie o parque de impressoras e IPs.</p>
+                        <a href="/impressoras" class="btn btn-secondary btn-sm mt-2">Acessar Módulo</a>
                     </div>
                 </div>
             </div>
 
-            <div class="col-md-3">
+            <div class="col">
                 <div class="card card-menu h-100 border-info" onclick="window.location.href='/monitores'">
-                    <div class="card-body text-center py-5">
-                        <i class="bi bi-display icon-large text-info mb-3 d-block"></i>
-                        <h1 class="display-4 fw-bold text-info mb-2" th:text="${totalMonitores}">0</h1>
-                        <h4 class="card-title fw-bold">Monitores</h4>
-                        <p class="card-text text-muted">Gerencie o parque de monitores e seus seriais.</p>
-                        <a href="/monitores" class="btn btn-info text-white mt-2">Acessar Módulo</a>
+                    <div class="card-body text-center py-4">
+                        <i class="bi bi-display icon-large text-info mb-2 d-block"></i>
+                        <h1 class="display-6 fw-bold text-info mb-2" th:text="${totalMonitores}">0</h1>
+                        <h5 class="card-title fw-bold">Monitores</h5>
+                        <p class="card-text text-muted small">Gerencie o parque de monitores e seriais.</p>
+                        <a href="/monitores" class="btn btn-info text-white btn-sm mt-2">Acessar Módulo</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col">
+                <div class="card card-menu h-100 border-purple" onclick="window.location.href='/redes'">
+                    <div class="card-body text-center py-4">
+                        <i class="bi bi-globe icon-large text-purple mb-2 d-block"></i>
+                        <h1 class="display-6 fw-bold text-purple mb-2" th:text="${totalRedes}">0</h1>
+                        <h5 class="card-title fw-bold">Redes (IPAM)</h5>
+                        <p class="card-text text-muted small">Gerencie faixas de IPs e alocações.</p>
+                        <a href="/redes" class="btn btn-purple btn-sm mt-2">Acessar Módulo</a>
                     </div>
                 </div>
             </div>

@@ -105,11 +105,14 @@
                             <td th:text="${impressora.id}">1</td>
                             <td th:text="${impressora.marcaModelo}">HP LaserJet</td>
                             <td th:text="${impressora.serialImpressora}">BR12345</td>
-                            <td th:text="${impressora.enderecoIp}">192.168.160.1</td>
+                            <td th:text="${impressora.redeIp != null ? impressora.redeIp.enderecoIp : 'Sem IP'}">192.168.160.1</td>
                             <td>
                                 <span class="badge bg-info text-dark" th:text="${impressora.status}">Status</span>
                             </td>
-                            <td th:text="${impressora.setor != null ? impressora.setor.nome : 'Sem Setor alocado'}">TI</td>
+                            <td class="align-middle">
+                                <span th:if="${impressora.setor != null}" th:text="${impressora.setor.nome}">Setor</span>
+                                <span th:if="${impressora.setor == null}" class="badge bg-secondary text-white">Informática Reserva</span>
+                            </td>
                             <td>
                                 <a th:href="@{/impressoras/editar/{id}(id=${impressora.id})}"
                                 class="btn btn-warning btn-sm"> Editar

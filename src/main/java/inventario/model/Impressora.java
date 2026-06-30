@@ -20,13 +20,9 @@ public class Impressora {
     @Column(unique = true, name = "serial_impressora")
     private String serialImpressora;
 
-    // IP: OPCIONAL e sem validação rígida de formato no modelo.
-    // Impressoras via cabo ou de reserva podem não ter IP configurado.
-    // O Controller valida o formato quando o campo é preenchido manualmente.
-    @Pattern(regexp = "^([0-9]{1,3}\\.){3}[0-9]{1,3}$", message = "Formato de IP inválido. Ex: 192.168.160.1",
-             groups = inventario.model.Impressora.ManualValidation.class)
-    @Column(unique = true)
-    private String enderecoIp;
+    @OneToOne
+    @JoinColumn(name = "rede_ip_id")
+    private RedeIp redeIp;
 
     // Status: "Ativo no Setor" ou "Em Estoque/Bancada"
     private String status;
@@ -78,18 +74,6 @@ public class Impressora {
         }
     }
 
-    public String getEnderecoIp() {
-        return enderecoIp;
-    }
-
-    public void setEnderecoIp(String enderecoIp) {
-        // Converte string vazia para null — evita violação de UNIQUE com strings vazias
-        if (enderecoIp != null && enderecoIp.trim().isEmpty()) {
-            this.enderecoIp = null;
-        } else {
-            this.enderecoIp = enderecoIp;
-        }
-    }
 
     public String getStatus() {
         return status;
@@ -105,5 +89,13 @@ public class Impressora {
 
     public void setSetor(Setor setor) {
         this.setor = setor;
+    }
+
+    public RedeIp getRedeIp() {
+        return redeIp;
+    }
+
+    public void setRedeIp(RedeIp redeIp) {
+        this.redeIp = redeIp;
     }
 }

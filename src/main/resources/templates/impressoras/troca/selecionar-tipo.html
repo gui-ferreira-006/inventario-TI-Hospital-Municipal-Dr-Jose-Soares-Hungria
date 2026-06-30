@@ -51,7 +51,7 @@
                         </div>
                         <div class="my-2 border-start ps-3">
                             <h6 class="text-muted text-uppercase mb-0 small fw-bold">IP Atual</h6>
-                            <span class="badge bg-secondary fs-6" th:text="${impressoraOrigem.enderecoIp != null ? impressoraOrigem.enderecoIp : 'Sem IP'}">192.168.1.1</span>
+                            <span class="badge bg-secondary fs-6" th:text="${impressoraOrigem.redeIp != null ? impressoraOrigem.redeIp.enderecoIp : 'Sem IP'}">192.168.1.1</span>
                         </div>
                         <div class="my-2 border-start ps-3">
                             <h6 class="text-muted text-uppercase mb-0 small fw-bold">Setor Atual</h6>
