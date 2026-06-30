@@ -8,6 +8,9 @@ import inventario.repository.ComputadorRepository;
 import inventario.repository.ImpressoraRepository;
 import inventario.repository.MonitorRepository;
 import inventario.repository.SetorRepository;
+import inventario.repository.RedeIpRepository;
+import inventario.model.RedeIp;
+import inventario.model.StatusIp;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -37,6 +40,9 @@ public class DatabaseImporter implements CommandLineRunner {
 
     @Autowired
     private MonitorRepository monitorRepository;
+
+    @Autowired
+    private RedeIpRepository redeIpRepository;
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -151,7 +157,7 @@ public class DatabaseImporter implements CommandLineRunner {
                 }
 
                 // Verificar duplicidade de IP (se não vazio)
-                if (!ip.isEmpty() && computadorRepository.existsByEnderecoIp(ip)) {
+                if (!ip.isEmpty() && redeIpRepository.existsByEnderecoIp(ip)) {
                     System.out.println("[INFO-SKIP] IP já cadastrado: " + ip + " (Serial: " + serial + ")");
                     totalDuplicadosOutros++;
                     continue;
@@ -169,7 +175,19 @@ public class DatabaseImporter implements CommandLineRunner {
                     Computador computador = new Computador();
                     computador.setSerialComputador(serial);
                     computador.setHostname(hostname.isEmpty() ? null : hostname);
-                    computador.setEnderecoIp(ip.isEmpty() ? null : ip);
+                    final String finalIp = ip;
+                    if (!finalIp.isEmpty()) {
+                        RedeIp redeIp = redeIpRepository.findByEnderecoIp(finalIp).orElseGet(() -> {
+                            RedeIp novo = new RedeIp();
+                            novo.setEnderecoIp(finalIp);
+                            novo.setStatus(StatusIp.OCUPADO);
+                            novo.setObservacao("Importado via CSV/Excel");
+                            return redeIpRepository.save(novo);
+                        });
+                        redeIp.setStatus(StatusIp.OCUPADO);
+                        redeIpRepository.save(redeIp);
+                        computador.setRedeIp(redeIp);
+                    }
                     
                     // Definir o status com base no setor (reserva fica em estoque)
                     if (setorNome.equalsIgnoreCase("Informática - Reserva")) {
@@ -311,7 +329,7 @@ public class DatabaseImporter implements CommandLineRunner {
                 }
 
                 // --- Verificar duplicidade de IP (somente se IP não é vazio) ---
-                if (!ip.isEmpty() && impressoraRepository.existsByEnderecoIp(ip)) {
+                if (!ip.isEmpty() && redeIpRepository.existsByEnderecoIp(ip)) {
                     System.out.println("[INFO-SKIP] IP já cadastrado: " + ip + " (" + marcaModelo + " / " + setorNome + ")");
                     totalDuplicadosIp++;
                     continue;
@@ -329,7 +347,19 @@ public class DatabaseImporter implements CommandLineRunner {
                     Impressora impressora = new Impressora();
                     impressora.setMarcaModelo(marcaModelo);
                     impressora.setSerialImpressora(serial.isEmpty() ? null : serial);
-                    impressora.setEnderecoIp(ip.isEmpty() ? null : ip);
+                    final String finalIp = ip;
+                    if (!finalIp.isEmpty()) {
+                        RedeIp redeIp = redeIpRepository.findByEnderecoIp(finalIp).orElseGet(() -> {
+                            RedeIp novo = new RedeIp();
+                            novo.setEnderecoIp(finalIp);
+                            novo.setStatus(StatusIp.OCUPADO);
+                            novo.setObservacao("Importado via CSV/Excel");
+                            return redeIpRepository.save(novo);
+                        });
+                        redeIp.setStatus(StatusIp.OCUPADO);
+                        redeIpRepository.save(redeIp);
+                        impressora.setRedeIp(redeIp);
+                    }
 
                     // Status: reserva fica em estoque, demais ficam ativas no setor
                     if (setorNome.equalsIgnoreCase("Informática - Reserva")) {

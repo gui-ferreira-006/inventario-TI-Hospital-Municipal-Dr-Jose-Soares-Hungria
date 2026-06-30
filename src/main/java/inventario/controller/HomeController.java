@@ -6,6 +6,7 @@ import inventario.repository.ComputadorRepository;
 import inventario.repository.SetorRepository;
 import inventario.repository.ImpressoraRepository;
 import inventario.repository.MonitorRepository;
+import inventario.repository.RedeIpRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
 
@@ -25,6 +26,9 @@ public class HomeController {
     @Autowired
     private MonitorRepository monitorRepository;
 
+    @Autowired
+    private RedeIpRepository redeIpRepository;
+
     @GetMapping("/")
     public String exibirDashboard(Model model) {
 
@@ -33,11 +37,13 @@ public class HomeController {
         long totalSetores = setorRepository.count();
         long totalImpressoras = impressoraRepository.count();
         long totalMonitores = monitorRepository.count();
+        long totalRedes = redeIpRepository.count();
 
         model.addAttribute("totalComputadores", totalComputadores);
         model.addAttribute("totalSetores", totalSetores);
         model.addAttribute("totalImpressoras", totalImpressoras);
         model.addAttribute("totalMonitores", totalMonitores);
+        model.addAttribute("totalRedes", totalRedes);
 
         return "index";
     }

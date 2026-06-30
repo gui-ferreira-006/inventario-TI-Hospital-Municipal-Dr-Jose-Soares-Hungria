@@ -13,9 +13,10 @@ public interface ImpressoraRepository extends JpaRepository<Impressora, Long> {
 
     @Query("SELECT i FROM Impressora i " +
         "LEFT JOIN i.setor s " +
+        "LEFT JOIN i.redeIp r " +
         "WHERE LOWER(i.marcaModelo) LIKE LOWER(CONCAT('%', :termo, '%')) OR " +
         "LOWER(i.serialImpressora) LIKE LOWER(CONCAT('%', :termo, '%')) OR " +
-        "LOWER(i.enderecoIp) LIKE LOWER(CONCAT('%', :termo, '%')) OR " +
+        "LOWER(r.enderecoIp) LIKE LOWER(CONCAT('%', :termo, '%')) OR " +
         "LOWER(i.status) LIKE LOWER(CONCAT('%', :termo, '%')) OR " +
         "LOWER(s.nome) LIKE LOWER(CONCAT('%', :termo, '%'))"
     )
@@ -24,8 +25,4 @@ public interface ImpressoraRepository extends JpaRepository<Impressora, Long> {
     // Verificações de Duplicidade para o Serial
     boolean existsBySerialImpressora(String serialImpressora);
     boolean existsBySerialImpressoraAndIdNot(String serialImpressora, Long id);
-
-    // Verificações de Duplicidade para o IP
-    boolean existsByEnderecoIp(String enderecoIp);
-    boolean existsByEnderecoIpAndIdNot(String enderecoIp, Long id);
 }
