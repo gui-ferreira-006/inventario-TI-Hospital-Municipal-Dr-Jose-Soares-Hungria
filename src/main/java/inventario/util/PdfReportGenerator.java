@@ -147,7 +147,7 @@ public class PdfReportGenerator {
                     case "id" -> String.valueOf(c.getId());
                     case "hostname" -> c.getHostname() != null ? c.getHostname() : "-";
                     case "serial" -> c.getSerialComputador();
-                    case "ip" -> c.getEnderecoIp() != null ? c.getEnderecoIp() : "-";
+                    case "ip" -> c.getRedeIp() != null ? c.getRedeIp().getEnderecoIp() : "-";
                     case "status" -> c.getStatus() != null ? c.getStatus() : "-";
                     case "setor" -> c.getSetor() != null ? c.getSetor().getNome() : "-";
                     default -> "";
@@ -214,7 +214,7 @@ public class PdfReportGenerator {
                     case "id" -> String.valueOf(imp.getId());
                     case "marcaModelo" -> imp.getMarcaModelo();
                     case "serial" -> imp.getSerialImpressora();
-                    case "ip" -> imp.getEnderecoIp();
+                    case "ip" -> imp.getRedeIp() != null ? imp.getRedeIp().getEnderecoIp() : "-";
                     case "setor" -> imp.getSetor() != null ? imp.getSetor().getNome() : "-";
                     default -> "";
                 };

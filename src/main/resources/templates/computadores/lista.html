@@ -97,11 +97,14 @@
                             <td th:text="${comp.id}">1</td>
                             <td th:text="${comp.hostname}">SMSHMJSH</td>
                             <td th:text="${comp.serialComputador}">BRC210ABC</td>
-                            <td th:text="${comp.enderecoIp}">192.168.160.1</td>
+                            <td th:text="${comp.redeIp != null ? comp.redeIp.enderecoIp : 'Sem IP'}">192.168.160.1</td>
                             <td>
                                 <span class="badge bg-info text-dark" th:text="${comp.status}">Status</span>
                             </td>
-                            <td th:text="${comp.setor != null ? comp.setor.nome : 'Sem Setor alocado'}">TI</td>
+                            <td class="align-middle">
+                                <span th:if="${comp.setor != null}" th:text="${comp.setor.nome}">Setor</span>
+                                <span th:if="${comp.setor == null}" class="badge bg-secondary text-white">Informática Reserva</span>
+                            </td>
                             <td>
                                 <a th:href="@{vnc://{host}(host=${comp.hostname})}" class="btn btn-info btn-sm me-2" title="Acesso Remoto VNC">
                                     VNC
