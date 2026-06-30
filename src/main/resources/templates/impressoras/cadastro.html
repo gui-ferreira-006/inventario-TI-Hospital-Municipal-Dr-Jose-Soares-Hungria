@@ -42,10 +42,11 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="enderecoIp" class="form-label">Endereço IP</label>
-                            <input type="text" id="enderecoIp" class="form-control" th:field="*{enderecoIp}"
-                                    placeholder="Ex: 192.168.160.1"
-                                    th:classappend="${#fields.hasErrors('enderecoIp')} ? 'is-invalid'">
-                            <div class="invalid-feedback" th:if="${#fields.hasErrors('enderecoIp')}" th:errors="*{enderecoIp}"></div>
+                            <select class="form-select" id="enderecoIp" th:field="*{redeIp}" th:classappend="${#fields.hasErrors('redeIp')} ? 'is-invalid'">
+                                <option value="">-- Sem IP Alocado --</option>
+                                <option th:each="ip : ${ipsLivres}" th:value="${ip.id}" th:text="${ip.enderecoIp}"></option>
+                            </select>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('redeIp')}" th:errors="*{redeIp}"></div>
                         </div>
 
                         <div class="col-md-6 mb-3">
@@ -63,7 +64,7 @@
                     <div class="mb-4">
                         <label for="setor" class="form-label">Setor</label>
                         <select class="form-select" id="setor" th:field="*{setor}">
-                            <option value="">-- Selecione o Setor --</option>
+                            <option value="">-- Informática Reserva --</option>
                             <option th:each="s : ${setores}"
                                     th:value="${s.id}"
                                     th:text="${s.nome} + ' (' + ${s.bloco} + ')'"></option>

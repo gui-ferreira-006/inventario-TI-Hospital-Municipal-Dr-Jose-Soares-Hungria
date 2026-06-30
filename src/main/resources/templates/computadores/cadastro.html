@@ -40,14 +40,14 @@
                             <div class="invalid-feedback" th:if="${#fields.hasErrors('serialComputador')}" th:errors="*{serialComputador}"></div>        
                         </div>
                     </div>
-
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="enderecoIp" class="form-label">Endereço IP</label>
-                            <input type="text" id="enderecoIp" class="form-control" th:field="*{enderecoIp}"
-                                    placeholder="Ex: 192.168.160.1"
-                                    th:classappend="${#fields.hasErrors('enderecoIp')} ? 'is-invalid'">
-                            <div class="invalid-feedback" th:if="${#fields.hasErrors('enderecoIp')}" th:errors="*{enderecoIp}"></div>
+                            <select class="form-select" id="enderecoIp" th:field="*{redeIp}" th:classappend="${#fields.hasErrors('redeIp')} ? 'is-invalid'">
+                                <option value="">-- Sem IP Alocado --</option>
+                                <option th:each="ip : ${ipsLivres}" th:value="${ip.id}" th:text="${ip.enderecoIp}"></option>
+                            </select>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('redeIp')}" th:errors="*{redeIp}"></div>
                         </div>
 
                         <div class="col-md-6 mb-3">
@@ -66,7 +66,7 @@
                         <label for="setor" class="form-label">Setor de Destino</label>
                         <!-- Iteração ajustada para ${setores} para bater com o Controller -->
                          <select class="form-select" id="setor" th:field="*{setor}">
-                            <option value="">Selecione o Setor</option>
+                            <option value="">-- Informática Reserva (Estoque) --</option>
                             <option th:each="s : ${setores}"
                                     th:value="${s.id}"
                                     th:text="${s.nome} + ' (' + ${s.bloco} + ')'">
