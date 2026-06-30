@@ -1,8 +1,12 @@
 package inventario.controller;
 
 import inventario.model.Computador;
+import inventario.model.RedeIp;
+import inventario.model.StatusIp;
 import inventario.repository.ComputadorRepository;
+import inventario.repository.RedeIpRepository;
 import inventario.repository.SetorRepository;
+import inventario.service.RedeIpService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -10,6 +14,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -21,6 +27,12 @@ public class ComputadorController {
 
     @Autowired
     private SetorRepository setorRepository;
+
+    @Autowired
+    private RedeIpRepository redeIpRepository;
+
+    @Autowired
+    private RedeIpService redeIpService;
 
     @GetMapping
     public String listarComputadores(
@@ -37,7 +49,7 @@ public class ComputadorController {
         } else if ("serialComputador".equalsIgnoreCase(ordenarPor)) {
             propriedade = "serialComputador";
         } else if ("enderecoIp".equalsIgnoreCase(ordenarPor)) {
-            propriedade = "enderecoIp";
+            propriedade = "redeIp.enderecoIp";
         } else if ("status".equalsIgnoreCase(ordenarPor)) {
             propriedade = "status";
         } else if ("setor".equalsIgnoreCase(ordenarPor)) {
@@ -65,6 +77,7 @@ public class ComputadorController {
     public String novo(Model model) {
         model.addAttribute("computador", new Computador());
         model.addAttribute("setores", setorRepository.findAll());
+        model.addAttribute("ipsLivres", redeIpRepository.findByStatus(StatusIp.LIVRE));
         return "computadores/cadastro";
     }
 
@@ -79,23 +92,23 @@ public class ComputadorController {
 
         if (temSetorAlocado) {
             // Se for alocado para um Setor, EXIGE Hostname e IP
-            if (computador.getHostname() == null) {
+            if (computador.getHostname() == null || computador.getHostname().trim().isEmpty()) {
                 result.rejectValue("hostname", "error.computador", "O Hostname é obrigatório para computadores alocados em setores.");
             }
-            if (computador.getEnderecoIp() == null) {
-                result.rejectValue("enderecoIp", "error.computador", "O Endereço IP é obirgatório para computadores alocados em setores.");
+            if (computador.getRedeIp() == null) {
+                result.rejectValue("redeIp", "error.computador", "O Endereço IP é obrigatório para computadores alocados em setores.");
             }
         } else {
             // Se NÃO tem setor (Informática Reserva), GARANTE que o IP e Hostname fiquem vazios
             computador.setHostname(null);
-            computador.setEnderecoIp(null);
+            computador.setRedeIp(null);
         }
 
         // ===========================================================
-        // 2. VALIDAÇÕES DE DUPLICIDADE (Hostname, Serial e IP)
+        // 2. VALIDAÇÕES DE DUPLICIDADE (Hostname e Serial)
         // ===========================================================
 
-        if (computador.getHostname() != null) {
+        if (computador.getHostname() != null && !computador.getHostname().trim().isEmpty()) {
             boolean hostnameDuplicado = (computador.getId() == null)
                 ? computadorRepository.existsByHostname(computador.getHostname())
                 : computadorRepository.existsByHostnameAndIdNot(computador.getHostname(), computador.getId());
@@ -111,20 +124,52 @@ public class ComputadorController {
             if (serialDuplicado) result.rejectValue("serialComputador", "error.computador", "Este Número de Serial já está cadastrado.");
         }
 
-        if (computador.getEnderecoIp() != null) {
-            boolean ipDuplicado = (computador.getId() == null)
-                ? computadorRepository.existsByEnderecoIp(computador.getEnderecoIp())
-                : computadorRepository.existsByEnderecoIpAndIdNot(computador.getEnderecoIp(), computador.getId());
-
-            if (ipDuplicado) result.rejectValue("enderecoIp", "error.computador", "ATENÇÃO: Este Endereço IP já está em uso!");
-        }
-
         // ===========================================================
         // 3. RETORNO DE ERROS
         // ===========================================================
         if (result.hasErrors()) {
             model.addAttribute("setores", setorRepository.findAll());
+            List<RedeIp> ipsLivres = new ArrayList<>(redeIpRepository.findByStatus(StatusIp.LIVRE));
+            if (computador.getRedeIp() != null) {
+                ipsLivres.add(0, computador.getRedeIp());
+            }
+            model.addAttribute("ipsLivres", ipsLivres);
             return "computadores/cadastro";
+        }
+
+        // ===========================================================
+        // 4. CICLO DE VIDA DO IP
+        // ===========================================================
+        // Liberar IP antigo se mudou ou foi removido
+        if (computador.getId() != null) {
+            Computador antigo = computadorRepository.findById(computador.getId()).orElse(null);
+            if (antigo != null && antigo.getRedeIp() != null) {
+                if (computador.getRedeIp() == null || !antigo.getRedeIp().getId().equals(computador.getRedeIp().getId())) {
+                    redeIpService.liberarIp(antigo.getRedeIp());
+                }
+            }
+        }
+
+        // Ocupar o novo IP
+        if (computador.getRedeIp() != null) {
+            String nomeSetor = "TI Reserva";
+            if (computador.getSetor() != null) {
+                if (computador.getSetor().getNome() != null) {
+                    nomeSetor = computador.getSetor().getNome();
+                } else if (computador.getSetor().getId() != null) {
+                    inventario.model.Setor setor = setorRepository.findById(computador.getSetor().getId()).orElse(null);
+                    if (setor != null) {
+                        nomeSetor = setor.getNome();
+                    }
+                }
+            }
+            // Pega o hostname. Se for nulo/vazio, usa o Serial (para o caso de máquinas na reserva)
+            String identificador = (computador.getHostname() != null && !computador.getHostname().trim().isEmpty()) 
+                                   ? computador.getHostname() 
+                                   : "S/N: " + computador.getSerialComputador();
+            
+            String observacaoDinamica = "Computador " + identificador + " - " + nomeSetor;
+            redeIpService.ocuparIp(computador.getRedeIp(), observacaoDinamica);
         }
 
         computadorRepository.save(computador);
@@ -136,11 +181,21 @@ public class ComputadorController {
         Computador computador = computadorRepository.findById(id).orElse(null);
         model.addAttribute("computador", computador);
         model.addAttribute("setores", setorRepository.findAll());
+
+        List<RedeIp> ipsLivres = new ArrayList<>(redeIpRepository.findByStatus(StatusIp.LIVRE));
+        if (computador != null && computador.getRedeIp() != null) {
+            ipsLivres.add(0, computador.getRedeIp());
+        }
+        model.addAttribute("ipsLivres", ipsLivres);
         return "computadores/cadastro";
     }
 
     @GetMapping("/excluir/{id}")
     public String excluir(@PathVariable Long id) {
+        Computador computador = computadorRepository.findById(id).orElse(null);
+        if (computador != null && computador.getRedeIp() != null) {
+            redeIpService.liberarIp(computador.getRedeIp());
+        }
         computadorRepository.deleteById(id);
         return "redirect:/computadores";
     }
