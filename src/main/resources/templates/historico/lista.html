@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Histórico de Auditoria - Inventário TI</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <style>
+        .timeline {
+            border-left: 3px solid #dee2e6;
+            padding-left: 20px;
+            position: relative;
+            list-style: none;
+        }
+        .timeline-item {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+        .timeline-marker {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: #0d6efd;
+            left: -29px;
+            top: 5px;
+            border: 3px solid white;
+            box-shadow: 0 0 0 2px #0d6efd;
+        }
+    </style>
+</head>
+<body class="bg-light">
+
+    <div th:replace="~{fragments/menu :: navbar}"></div>
+
+    <div class="container py-4">
+        
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="fw-bold text-dark mb-1">⏱️ Histórico de Auditoria</h1>
+                <p class="text-muted small">Acompanhe as alterações do sistema em tempo real</p>
+            </div>
+        </div>
+
+        <!-- Barra de Busca e Filtros -->
+        <div class="card mb-4 shadow-sm">
+            <div class="card-body">
+                <form th:action="@{/historico}" method="get">
+                    <div class="row g-3 align-items-center">
+                        <!-- Busca -->
+                        <div class="col-md-12 col-lg-5">
+                            <div class="input-group">
+                                <span class="input-group-text bg-primary text-white"><i class="bi bi-search"></i></span>
+                                <input type="text" class="form-control" name="termo" th:value="${termoBusca}"
+                                       placeholder="Pesquisar por Módulo, Identificador, Ação ou Detalhes...">
+                            </div>
+                        </div>
+                        
+                        <!-- Ordenação -->
+                        <div class="col-md-5 col-lg-3">
+                            <div class="input-group">
+                                <span class="input-group-text bg-light text-secondary"><i class="bi bi-sort-down"></i></span>
+                                <select class="form-select" name="ordenarPor">
+                                    <option value="dataRegistro" th:selected="${ordenarPor == 'dataRegistro'}">Ordenar por Data</option>
+                                    <option value="modulo" th:selected="${ordenarPor == 'modulo'}">Ordenar por Módulo</option>
+                                    <option value="acao" th:selected="${ordenarPor == 'acao'}">Ordenar por Ação</option>
+                                    <option value="identificador" th:selected="${ordenarPor == 'identificador'}">Ordenar por Identificador</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Direção -->
+                        <div class="col-md-4 col-lg-2">
+                            <select class="form-select" name="direcao">
+                                <option value="DESC" th:selected="${direcao == 'DESC'}">Decrescente (Mais recente)</option>
+                                <option value="ASC" th:selected="${direcao == 'ASC'}">Crescente (Mais antigo)</option>
+                            </select>
+                        </div>
+
+                        <!-- Botões -->
+                        <div class="col-md-3 col-lg-2 d-flex gap-2">
+                            <button class="btn btn-primary flex-grow-1" type="submit">Filtrar</button>
+                            <a href="/historico" class="btn btn-outline-secondary" title="Limpar todos os filtros">
+                                <i class="bi bi-x-circle"></i>
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Timeline -->
+        <div th:if="${!#lists.isEmpty(registros)}">
+            <ul class="timeline">
+                <li class="timeline-item" th:each="item : ${registros}">
+                    <div class="timeline-marker"></div>
+                    <div class="card shadow-sm border-0">
+                        <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center py-3">
+                            <div>
+                                <span class="fw-bold text-primary" th:text="${#temporals.format(item.dataRegistro, 'dd/MM/yyyy HH:mm')}">01/01/2026 12:00</span>
+                                <span class="badge bg-secondary ms-2" th:text="${item.modulo}">MÓDULO</span>
+                                <span class="text-dark ms-2 fw-medium" th:text="${item.identificador}">Identificador</span>
+                            </div>
+                            <span th:class="'badge ' + (${item.acao} == 'CRIACAO' ? 'bg-success' : (${item.acao} == 'ATUALIZACAO' ? 'bg-primary' : (${item.acao} == 'EXCLUSAO' ? 'bg-danger' : 'bg-secondary')))"
+                                  th:text="${item.acao}">AÇÃO</span>
+                        </div>
+                        <div class="card-body">
+                            <h4 class="card-title fw-bold text-dark mb-2" th:text="${item.identificador}">Identificador</h4>
+                            
+                            <!-- Botão collapse para ver detalhes -->
+                            <button class="btn btn-link btn-sm text-decoration-none p-0 d-flex align-items-center gap-1" 
+                                    type="button" 
+                                    data-bs-toggle="collapse" 
+                                    th:data-bs-target="'#collapse-' + ${item.id}" 
+                                    aria-expanded="false">
+                                <i class="bi bi-info-circle"></i> Ver Detalhes
+                            </button>
+
+                            <!-- Div expansível com card interno -->
+                            <div class="collapse mt-3" th:id="'collapse-' + ${item.id}">
+                                <div class="bg-light p-3 rounded">
+                                    <ul class="list-unstyled mb-0" th:if="${item.acao == 'ATUALIZACAO'}">
+                                        <li class="mb-2" th:each="detalhe : ${#strings.arraySplit(item.detalhes, '|')}">
+                                            <i class="bi bi-arrow-right-short text-primary"></i> <span th:text="${detalhe.trim()}"></span>
+                                        </li>
+                                    </ul>
+                                    <p class="mb-0 text-muted" th:if="${item.acao != 'ATUALIZACAO'}" th:text="${item.detalhes}"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <div th:if="${#lists.isEmpty(registros)}" class="alert alert-info text-center shadow-sm py-4">
+            <i class="bi bi-info-circle fs-2 d-block mb-2"></i>
+            Nenhum registro de auditoria cadastrado até o momento.
+        </div>
+
+    </div>
+
+    <!-- SCRIPT DO BOOTSTRAP ADICIONADO AQUI -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+
+</body>
+</html>
