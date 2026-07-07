@@ -7,6 +7,7 @@ import inventario.repository.ImpressoraRepository;
 import inventario.repository.RedeIpRepository;
 import inventario.repository.SetorRepository;
 import inventario.service.RedeIpService;
+import inventario.service.HistoricoService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Controller
 @RequestMapping("/impressoras")
@@ -33,6 +35,9 @@ public class ImpressoraController {
 
     @Autowired
     private RedeIpService redeIpService;
+
+    @Autowired
+    private HistoricoService historicoService;
 
     @GetMapping
     public String listarImpressoras(
@@ -139,6 +144,47 @@ public class ImpressoraController {
             redeIpService.ocuparIp(impressora.getRedeIp(), observacaoDinamica);
         }
 
+        // Instrumentação de Histórico/Auditoria
+        String ident = impressora.getSerialImpressora();
+
+        if (impressora.getId() == null) {
+            historicoService.registrarEvento("IMPRESSORA", ident, "CRIACAO", "Registro criado no sistema");
+        } else {
+            Impressora antiga = impressoraRepository.findById(impressora.getId()).orElse(null);
+            if (antiga != null) {
+                List<String> alteracoes = new ArrayList<>();
+                if (!Objects.equals(antiga.getMarcaModelo(), impressora.getMarcaModelo())) {
+                    alteracoes.add("Marca/Modelo: " + antiga.getMarcaModelo() + " ➔ " + impressora.getMarcaModelo());
+                }
+
+                String ipAntigo = (antiga.getRedeIp() != null) ? antiga.getRedeIp().getEnderecoIp() : null;
+                String ipNovo = (impressora.getRedeIp() != null) ? impressora.getRedeIp().getEnderecoIp() : null;
+                if (!Objects.equals(ipAntigo, ipNovo)) {
+                    alteracoes.add("IP: " + (ipAntigo != null ? ipAntigo : "Nenhum") + " ➔ " + (ipNovo != null ? ipNovo : "Nenhum"));
+                }
+
+                Long idSetorAntigo = (antiga.getSetor() != null) ? antiga.getSetor().getId() : null;
+                Long idSetorNovo = (impressora.getSetor() != null) ? impressora.getSetor().getId() : null;
+                if (!Objects.equals(idSetorAntigo, idSetorNovo)) {
+                    String nomeSetorAntigo = "Reserva TI";
+                    if (antiga.getSetor() != null) {
+                        nomeSetorAntigo = antiga.getSetor().getNome();
+                    }
+                    String nomeSetorNovo = "Reserva TI";
+                    if (impressora.getSetor() != null && impressora.getSetor().getId() != null) {
+                        inventario.model.Setor sNovo = setorRepository.findById(impressora.getSetor().getId()).orElse(null);
+                        if (sNovo != null) {
+                            nomeSetorNovo = sNovo.getNome();
+                        }
+                    }
+                    alteracoes.add("Setor: " + nomeSetorAntigo + " ➔ " + nomeSetorNovo);
+                }
+                if (!alteracoes.isEmpty()) {
+                    historicoService.registrarEvento("IMPRESSORA", ident, "ATUALIZACAO", String.join(" | ", alteracoes));
+                }
+            }
+        }
+
         impressoraRepository.save(impressora);
         return "redirect:/impressoras";
     }
@@ -159,9 +205,13 @@ public class ImpressoraController {
 
     @GetMapping("/excluir/{id}")
     public String excluir(@PathVariable Long id) {
-        Impressora impressora = impressoraRepository.findById(id).orElse(null);
-        if (impressora != null && impressora.getRedeIp() != null) {
-            redeIpService.liberarIp(impressora.getRedeIp());
+        Impressora imp = impressoraRepository.findById(id).orElse(null);
+        if (imp != null) {
+            if (imp.getRedeIp() != null) {
+                redeIpService.liberarIp(imp.getRedeIp());
+            }
+            String ident = imp.getSerialImpressora();
+            historicoService.registrarEvento("IMPRESSORA", ident, "EXCLUSAO", "Registro excluído do sistema");
         }
         impressoraRepository.deleteById(id);
         return "redirect:/impressoras";
