@@ -14,6 +14,9 @@ public class RedeIpService {
     @Autowired
     private RedeIpRepository redeIpRepository;
 
+    @Autowired
+    private HistoricoService historicoService;
+
     public void liberarIp(RedeIp ip) {
         if (ip != null) {
             ip.setStatus(StatusIp.LIVRE);
@@ -64,6 +67,9 @@ public class RedeIpService {
             criados++;
         }
 
+        // Instrumentação de Histórico/Auditoria
+        historicoService.registrarEvento("REDE", "Geração em Massa (" + ipInicial + " - " + ipFinal + ")", "CRIACAO", "Novos IPs gerados no pool");
+
         return "Geração concluída: " + criados + " IPs criados, " + ignorados + " ignorados (já existentes ou reservados).";
     }
 
@@ -94,6 +100,9 @@ public class RedeIpService {
                 ignorados++;
             }
         }
+
+        // Instrumentação de Histórico/Auditoria
+        historicoService.registrarEvento("REDE", "Exclusão em Massa (" + ipInicial + " - " + ipFinal + ")", "EXCLUSAO", "IPs removidos do sistema");
 
         return "Limpeza concluída: " + excluidos + " IPs excluídos com sucesso. " + ignorados + " IPs ignorados (em uso, reservados ou não encontrados na base).";
     }
