@@ -95,7 +95,13 @@
                     <tbody>
                         <tr th:each="comp : ${computadores}">
                             <td th:text="${comp.id}">1</td>
-                            <td th:text="${comp.hostname}">SMSHMJSH</td>
+                            <td>
+                                <span th:text="${comp.hostname}">SMSHMJSH</span>
+                                <i class="bi bi-info-circle-fill text-info ms-2" 
+                                   style="cursor: help;"
+                                   th:if="${comp.observacoes != null and !comp.observacoes.trim().isEmpty()}"
+                                   th:title="${comp.observacoes}"></i>
+                            </td>
                             <td th:text="${comp.serialComputador}">BRC210ABC</td>
                             <td th:text="${comp.redeIp != null ? comp.redeIp.enderecoIp : 'Sem IP'}">192.168.160.1</td>
                             <td>

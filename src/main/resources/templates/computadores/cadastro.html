@@ -74,6 +74,13 @@
                          </select>
                     </div>
 
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <label for="observacoes" class="form-label fw-bold">Observações (Opcional)</label>
+                            <textarea class="form-control" id="observacoes" th:field="*{observacoes}" rows="3" placeholder="Insira detalhes adicionais, particularidades ou estado do equipamento..."></textarea>
+                        </div>
+                    </div>
+
                     <div class="d-flex justify-content-end mt-4">
                         <a href="/computadores" class="btn btn-secondary me-2">Cancelar</a>
                         <button type="submit" class="btn btn-success">Salvar Equipamento</button>
