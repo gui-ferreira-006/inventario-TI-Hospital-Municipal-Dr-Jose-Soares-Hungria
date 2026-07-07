@@ -7,6 +7,7 @@ import inventario.repository.ComputadorRepository;
 import inventario.repository.RedeIpRepository;
 import inventario.repository.SetorRepository;
 import inventario.service.RedeIpService;
+import inventario.service.HistoricoService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Controller
 @RequestMapping("/computadores")
@@ -33,6 +35,9 @@ public class ComputadorController {
 
     @Autowired
     private RedeIpService redeIpService;
+
+    @Autowired
+    private HistoricoService historicoService;
 
     @GetMapping
     public String listarComputadores(
@@ -172,6 +177,46 @@ public class ComputadorController {
             redeIpService.ocuparIp(computador.getRedeIp(), observacaoDinamica);
         }
 
+        // Instrumentação de Histórico/Auditoria
+        String ident = (computador.getHostname() != null && !computador.getHostname().isEmpty()) 
+                       ? computador.getHostname() 
+                       : computador.getSerialComputador();
+
+        if (computador.getId() == null) {
+            historicoService.registrarEvento("COMPUTADOR", ident, "CRIACAO", "Registro criado no sistema");
+        } else {
+            Computador antigo = computadorRepository.findById(computador.getId()).orElse(null);
+            if (antigo != null) {
+                List<String> alteracoes = new ArrayList<>();
+                if (!Objects.equals(antigo.getHostname(), computador.getHostname())) {
+                    alteracoes.add("Hostname: " + (antigo.getHostname() != null ? antigo.getHostname() : "Nenhum") + " ➔ " + (computador.getHostname() != null ? computador.getHostname() : "Nenhum"));
+                }
+
+                String ipAntigo = (antigo.getRedeIp() != null) ? antigo.getRedeIp().getEnderecoIp() : null;
+                String ipNovo = (computador.getRedeIp() != null) ? computador.getRedeIp().getEnderecoIp() : null;
+                if (!Objects.equals(ipAntigo, ipNovo)) {
+                    alteracoes.add("IP: " + (ipAntigo != null ? ipAntigo : "Nenhum") + " ➔ " + (ipNovo != null ? ipNovo : "Nenhum"));
+                }
+
+                Long idSetorAntigo = (antigo.getSetor() != null) ? antigo.getSetor().getId() : null;
+                Long idSetorNovo = (computador.getSetor() != null) ? computador.getSetor().getId() : null;
+                if (!Objects.equals(idSetorAntigo, idSetorNovo)) {
+                    String nomeSetorAntigo = (antigo.getSetor() != null) ? antigo.getSetor().getNome() : "Nenhum";
+                    String nomeSetorNovo = "Nenhum";
+                    if (computador.getSetor() != null && computador.getSetor().getId() != null) {
+                        inventario.model.Setor sNovo = setorRepository.findById(computador.getSetor().getId()).orElse(null);
+                        if (sNovo != null) {
+                            nomeSetorNovo = sNovo.getNome();
+                        }
+                    }
+                    alteracoes.add("Setor: " + nomeSetorAntigo + " ➔ " + nomeSetorNovo);
+                }
+                if (!alteracoes.isEmpty()) {
+                    historicoService.registrarEvento("COMPUTADOR", ident, "ATUALIZACAO", String.join(" | ", alteracoes));
+                }
+            }
+        }
+
         computadorRepository.save(computador);
         return "redirect:/computadores";
     }
@@ -192,9 +237,13 @@ public class ComputadorController {
 
     @GetMapping("/excluir/{id}")
     public String excluir(@PathVariable Long id) {
-        Computador computador = computadorRepository.findById(id).orElse(null);
-        if (computador != null && computador.getRedeIp() != null) {
-            redeIpService.liberarIp(computador.getRedeIp());
+        Computador pc = computadorRepository.findById(id).orElse(null);
+        if (pc != null) {
+            if (pc.getRedeIp() != null) {
+                redeIpService.liberarIp(pc.getRedeIp());
+            }
+            String ident = (pc.getHostname() != null && !pc.getHostname().isEmpty()) ? pc.getHostname() : pc.getSerialComputador();
+            historicoService.registrarEvento("COMPUTADOR", ident, "EXCLUSAO", "Registro excluído do sistema");
         }
         computadorRepository.deleteById(id);
         return "redirect:/computadores";

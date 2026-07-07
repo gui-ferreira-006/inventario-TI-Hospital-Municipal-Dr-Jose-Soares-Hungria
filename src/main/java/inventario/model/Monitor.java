@@ -75,4 +75,8 @@ public class Monitor {
     public void setComputador(Computador computador) {
         this.computador = computador;
     }
+
+    public String getMarcaModelo() {
+        return (marca != null ? marca : "") + " " + (modelo != null ? modelo : "");
+    }
 }

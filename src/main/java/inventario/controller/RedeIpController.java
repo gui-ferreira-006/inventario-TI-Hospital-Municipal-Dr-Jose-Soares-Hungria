@@ -5,6 +5,7 @@ import inventario.model.StatusIp;
 import inventario.repository.RedeIpRepository;
 import inventario.service.RedeIpService;
 import inventario.service.PadronizacaoObservacaoService;
+import inventario.service.HistoricoService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -20,6 +21,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.data.domain.Sort;
 
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Objects;
 
 @Controller
 @RequestMapping("/redes")
@@ -33,6 +36,9 @@ public class RedeIpController {
 
     @Autowired
     private PadronizacaoObservacaoService padronizacaoObservacaoService;
+
+    @Autowired
+    private HistoricoService historicoService;
 
     @GetMapping
     public String listar(
@@ -149,6 +155,23 @@ public class RedeIpController {
         if (result.hasErrors()) {
             model.addAttribute("listaStatus", StatusIp.values());
             return "redes/cadastro";
+        }
+
+        // Instrumentação de Histórico/Auditoria
+        if (ip.getId() != null) {
+            RedeIp antigo = redeIpRepository.findById(ip.getId()).orElse(null);
+            if (antigo != null) {
+                List<String> alteracoes = new ArrayList<>();
+                if (antigo.getStatus() != ip.getStatus()) {
+                    alteracoes.add("Status: " + antigo.getStatus().name() + " ➔ " + ip.getStatus().name());
+                }
+                if (!Objects.equals(antigo.getObservacao(), ip.getObservacao())) {
+                    alteracoes.add("Observação: " + antigo.getObservacao() + " ➔ " + ip.getObservacao());
+                }
+                if (!alteracoes.isEmpty()) {
+                    historicoService.registrarEvento("REDE", ip.getEnderecoIp(), "ATUALIZACAO", String.join(" | ", alteracoes));
+                }
+            }
         }
 
         redeIpRepository.save(ip);

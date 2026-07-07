@@ -2,12 +2,15 @@ package inventario.controller;
 
 import inventario.model.Setor;
 import inventario.repository.SetorRepository;
+import inventario.service.HistoricoService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Controller
 @RequestMapping("/setores")
@@ -15,6 +18,9 @@ public class SetorController {
 
     @Autowired
     private SetorRepository setorRepository;
+
+    @Autowired
+    private HistoricoService historicoService;
 
 
     @GetMapping
@@ -61,6 +67,24 @@ public class SetorController {
         }
 
         // 3. Se passou por tudo limpo, salva no banco!
+        if (setor.getId() == null) {
+            historicoService.registrarEvento("DEPARTAMENTO", setor.getNome(), "CRIACAO", "Registro criado no sistema");
+        } else {
+            Setor antigo = setorRepository.findById(setor.getId()).orElse(null);
+            if (antigo != null) {
+                List<String> alteracoes = new ArrayList<>();
+                if (!antigo.getNome().equals(setor.getNome())) {
+                    alteracoes.add("Nome: " + antigo.getNome() + " ➔ " + setor.getNome());
+                }
+                if (!antigo.getBloco().equals(setor.getBloco())) {
+                    alteracoes.add("Bloco: " + antigo.getBloco() + " ➔ " + setor.getBloco());
+                }
+                if (!alteracoes.isEmpty()) {
+                    historicoService.registrarEvento("DEPARTAMENTO", setor.getNome(), "ATUALIZACAO", String.join(" | ", alteracoes));
+                }
+            }
+        }
+
         setorRepository.save(setor);
         return "redirect:/setores";
     }
@@ -74,6 +98,10 @@ public class SetorController {
 
     @GetMapping("/excluir/{id}")
     public String excluirSetor(@PathVariable Long id) {
+        Setor setor = setorRepository.findById(id).orElse(null);
+        if (setor != null) {
+            historicoService.registrarEvento("DEPARTAMENTO", setor.getNome(), "EXCLUSAO", "Registro excluído do sistema");
+        }
         setorRepository.deleteById(id);
         return "redirect:/setores";
     }

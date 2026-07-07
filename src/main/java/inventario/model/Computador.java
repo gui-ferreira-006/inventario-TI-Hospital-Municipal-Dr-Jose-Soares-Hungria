@@ -33,6 +33,9 @@ public class Computador {
     @JoinColumn(name = "setor_id")
     private Setor setor;
 
+    @Column(columnDefinition = "TEXT")
+    private String observacoes;
+
     // ===================================================
     // GETTERS E SETTERS
     // ===================================================
@@ -88,5 +91,13 @@ public class Computador {
 
     public void setRedeIp(RedeIp redeIp) {
         this.redeIp = redeIp;
+    }
+
+    public String getObservacoes() {
+        return observacoes;
+    }
+
+    public void setObservacoes(String observacoes) {
+        this.observacoes = observacoes;
     }
 }
