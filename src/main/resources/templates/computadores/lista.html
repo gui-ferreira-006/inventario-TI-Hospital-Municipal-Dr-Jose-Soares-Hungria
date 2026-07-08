@@ -104,8 +104,16 @@
                             </td>
                             <td th:text="${comp.serialComputador}">BRC210ABC</td>
                             <td th:text="${comp.redeIp != null ? comp.redeIp.enderecoIp : 'Sem IP'}">192.168.160.1</td>
-                            <td>
-                                <span class="badge bg-info text-dark" th:text="${comp.status}">Status</span>
+                            <td class="align-middle">
+                                <span th:switch="${comp.status}">
+                                    <span th:case="'Ativo no Setor'" class="badge bg-success">Ativo no Setor</span>
+                                    <span th:case="'Em Manutenção'" class="badge bg-danger">Em Manutenção</span>
+                                    <span th:case="'Em Configuração'" class="badge bg-warning text-dark">Em Configuração</span>
+                                    <span th:case="'Em Estoque/Bancada'" class="badge bg-info text-dark">Em Estoque/Bancada</span>
+                                    <span th:case="'Devolvido'" class="badge bg-secondary">Devolvido</span>
+                                    <!-- Fallback caso o status seja nulo ou diferente -->
+                                    <span th:case="*" class="badge bg-light text-dark border" th:text="${comp.status != null ? comp.status : 'Sem Status'}">Status</span>
+                                </span>
                             </td>
                             <td class="align-middle">
                                 <span th:if="${comp.setor != null}" th:text="${comp.setor.nome}">Setor</span>

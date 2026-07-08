@@ -106,8 +106,15 @@
                             <td th:text="${impressora.marcaModelo}">HP LaserJet</td>
                             <td th:text="${impressora.serialImpressora}">BR12345</td>
                             <td th:text="${impressora.redeIp != null ? impressora.redeIp.enderecoIp : 'Sem IP'}">192.168.160.1</td>
-                            <td>
-                                <span class="badge bg-info text-dark" th:text="${impressora.status}">Status</span>
+                            <td class="align-middle">
+                                <span th:switch="${impressora.status}">
+                                    <span th:case="'Ativo no Setor'" class="badge bg-success">Ativo no Setor</span>
+                                    <span th:case="'Em Manutenção'" class="badge bg-danger">Em Manutenção</span>
+                                    <span th:case="'Em Configuração'" class="badge bg-warning text-dark">Em Configuração</span>
+                                    <span th:case="'Em Estoque/Bancada'" class="badge bg-info text-dark">Em Estoque/Bancada</span>
+                                    <span th:case="'Devolvido'" class="badge bg-secondary">Devolvido</span>
+                                    <span th:case="*" class="badge bg-light text-dark border" th:text="${impressora.status != null ? impressora.status : 'Sem Status'}">Status</span>
+                                </span>
                             </td>
                             <td class="align-middle">
                                 <span th:if="${impressora.setor != null}" th:text="${impressora.setor.nome}">Setor</span>
