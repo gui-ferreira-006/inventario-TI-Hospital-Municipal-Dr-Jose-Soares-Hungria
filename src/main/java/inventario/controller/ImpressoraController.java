@@ -179,6 +179,14 @@ public class ImpressoraController {
                     }
                     alteracoes.add("Setor: " + nomeSetorAntigo + " ➔ " + nomeSetorNovo);
                 }
+
+                String statusAntigo = (antiga.getStatus() != null && !antiga.getStatus().trim().isEmpty()) ? antiga.getStatus() : "Sem Status";
+                String statusNovo = (impressora.getStatus() != null && !impressora.getStatus().trim().isEmpty()) ? impressora.getStatus() : "Sem Status";
+
+                if (!statusAntigo.equals(statusNovo)) {
+                    alteracoes.add("Status: " + statusAntigo + " ➔ " + statusNovo);
+                }
+
                 if (!alteracoes.isEmpty()) {
                     historicoService.registrarEvento("IMPRESSORA", ident, "ATUALIZACAO", String.join(" | ", alteracoes));
                 }

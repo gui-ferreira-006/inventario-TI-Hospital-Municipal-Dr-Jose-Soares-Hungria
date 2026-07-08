@@ -211,6 +211,14 @@ public class ComputadorController {
                     }
                     alteracoes.add("Setor: " + nomeSetorAntigo + " ➔ " + nomeSetorNovo);
                 }
+
+                String statusAntigo = (antigo.getStatus() != null && !antigo.getStatus().trim().isEmpty()) ? antigo.getStatus() : "Sem Status";
+                String statusNovo = (computador.getStatus() != null && !computador.getStatus().trim().isEmpty()) ? computador.getStatus() : "Sem Status";
+
+                if (!statusAntigo.equals(statusNovo)) {
+                    alteracoes.add("Status: " + statusAntigo + " ➔ " + statusNovo);
+                }
+
                 if (!alteracoes.isEmpty()) {
                     historicoService.registrarEvento("COMPUTADOR", ident, "ATUALIZACAO", String.join(" | ", alteracoes));
                 }
